@@ -3,7 +3,7 @@
 # This is Configuration script of Krushn's Arch Linux Installation Package.
 # Visit krushndayshmookh.github.io/krushn-arch for instructions.
 
-echo "Arch Configurator"
+echo "Arch Chroot Configurator"
 
 # Set date time
 ln -sf /usr/share/zoneinfo/Asia/Kolkata /etc/localtime
@@ -35,10 +35,8 @@ sed --in-place 's/^#\s*\(%wheel\s\+ALL=(ALL)\s\+NOPASSWD:\s\+ALL\)/\1/' /etc/sud
 echo "Set password for new user chintu"
 passwd chintu
 
-# Setup display manager
+# Setup display manager & Enable service
 systemctl enable sddm.service
-
-# Enable services
 systemctl enable NetworkManager.service
 
 echo "Configuration done. You can now exit chroot."
