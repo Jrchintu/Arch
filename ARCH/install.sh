@@ -6,8 +6,8 @@
 echo "Arch Installer"
 
 # Set up network connection
-read -p 'Are you connected to internet? [y/N]: ' neton
-if ! [ $neton = 'y' ] && ! [ $neton = 'Y' ]
+read -rp 'Are you connected to internet? [y/N]: ' neton
+if ! [ "$neton" = 'y' ] && ! [ "$neton" = 'Y' ]
 then 
     echo "Please connect to internet"
     exit
@@ -19,8 +19,8 @@ echo ""
 echo "/dev/sda1 - 512Mib will be mounted as /boot/efi"
 echo "/dev/sda2 - 8GiB will be used as swap"
 echo "/dev/sda3 - rest of space will be mounted as /"
-read -p 'Continue? [y/N]: ' fsok
-if ! [ $fsok = 'y' ] && ! [ $fsok = 'Y' ]
+read -rp 'Continue? [y/N]: ' fsok
+if ! [ "$fsok" = 'y' ] && ! [ "$fsok" = 'Y' ]
 then 
     echo "Edit the script to continue"
     exit
@@ -73,7 +73,6 @@ mkswap /dev/sda2
 swapon /dev/sda2
 
 # Install Arch Linux
-echo "Starting install.."
 echo "Installing Arch Linux, KDE with Konsole and Dolphin and GRUB2 as bootloader" 
 pacstrap /mnt base base-devel zsh grml-zsh-config grub os-prober intel-ucode efibootmgr dosfstools freetype2 fuse2 mtools iw wpa_supplicant dialog xorg xorg-server xorg-xinit mesa xf86-video-intel plasma konsole dolphin
 
@@ -81,17 +80,18 @@ pacstrap /mnt base base-devel zsh grml-zsh-config grub os-prober intel-ucode efi
 genfstab -U /mnt >> /mnt/etc/fstab
 
 # Copy post-install system cinfiguration script to new /root
-cp -rfv post-install.sh /mnt/root
-chmod a+x /mnt/root/post-install.sh
+curl https://github.com/Jrchintu/CDN/blob/main/ARCH/chroot.sh >> ./chroot.sh
+cp -rfv ./chroot.sh /mnt/root
+chmod a+x /mnt/root/chroot.sh
 
 # Chroot into new system
 echo "After chrooting into newly installed OS, please run the post-install.sh by executing ./chroot.sh"
 echo "Press any key to chroot. Remember ./chroot.sh"
-read tmpvar
+read -r tmpvar
 arch-chroot /mnt /bin/bash
 
 # Finish
 echo "Now you have a fully working bootable Arch Linux system installed."
-echo "Press any key to reboot or Ctrl+C to cancel."
-read tmpvar
+echo "Press [ENTER] to reboot or [Ctrl+C] to cancel."
+read -r tmpvar
 reboot
