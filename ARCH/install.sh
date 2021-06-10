@@ -18,7 +18,8 @@ echo "This script will create and format the partitions as follows:"
 echo ""
 echo "/dev/sda1 - 512Mib will be mounted as /boot/efi"
 echo "/dev/sda2 - 8GiB will be used as swap"
-echo "/dev/sda3 - rest of space will be mounted as /"
+echo "/dev/sda3 - 30GiB of root /"
+echo "/dev/sda4 - REST of /home"
 read -rp 'Continue? [y/N]: ' fsok
 if ! [ "$fsok" = 'y' ] && ! [ "$fsok" = 'Y' ]
 then 
