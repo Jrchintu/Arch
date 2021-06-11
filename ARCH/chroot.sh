@@ -1,10 +1,7 @@
 #!/bin/bash
 
-# Generate initramfs
-mkinitcpio -P
-
 #Install needed software
-pacman -S networkmanager intel-ucode ufw lightdm-gtk-greeter xorg grub efibootmgr --noconfirm --needed
+pacman -S networkmanager intel-ucode ufw lightdm-gtk-greeter xorg-xinit xorg-server grub efibootmgr --noconfirm --needed
 
 # Set locale to en_US.UTF-8 UTF-8
 sed -i '/en_US.UTF-8 UTF-8/s/^#//g' /etc/locale.gen
@@ -19,7 +16,12 @@ hwclock --systohc
 
 # Set hostname
 echo "3542" >> /etc/hostname
-echo "127.0.1.1 3542.localdomain 3542" >> /etc/hosts
+echo "127.0.0.1	localhost
+::1		localhost
+127.0.1.1 3542.localdomain 3542" >> /etc/hosts
+
+# Generate initramfs
+mkinitcpio -P
 
 # Install grub with efi
 grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=arch
