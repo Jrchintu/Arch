@@ -93,18 +93,16 @@ pacstrap /mnt base \
 #linux linux-headers[stable] or linux-lts linux-lts-headers[lts]
 genfstab -U /mnt >> /mnt/etc/fstab
 
-# Copy post-install system cinfiguration script to new /root
-cp -rfv post-install.sh /mnt/root
-chmod a+x /mnt/root/post-install.sh
+# Copy chroot.sh to /root
+curl https://raw.githubusercontent.com/Jrchintu/CDN/main/ARCH/chroot.sh >>./chroot.sh
+cp -rfv chroot.sh /mnt/root
+chmod a+x /mnt/root/chroot.sh
 
 # Chroot into new system
-echo "Base archlinux is installed chroot insto system and type
-curl -LO https://"
+echo "Base archlinux is installed chroot into system and type [ bash chroot.sh ]"
 echo "Press any key to chroot or ctrl+c to exit"
 read -r tmpvar
-cat << EOF | sudo arch-chroot /mnt
-ls /
-EOF
+arch-chroot /mnt/root
 
 # Finish
 echo "If Chroot is sucessfull then installation sucessfull"
