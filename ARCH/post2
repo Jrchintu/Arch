@@ -48,7 +48,7 @@ ufw default allow outgoing
 ufw enable
 
 # Enable service
-systemctl enable sddm.service
+systemctl enable ly.service
 systemctl enable bluetooth.service
 systemctl enable NetworkManager.service
 systemctl enable ufw.service
