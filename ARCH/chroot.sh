@@ -13,8 +13,6 @@ locale-gen
 echo "LANG=en_US.UTF-8" >> /etc/locale.conf
 
 # Set date time
-timedatectl set-timezone Asia/Kolkata
-timedatectl set-ntp true
 ln -sf /usr/share/zoneinfo/Asia/Kolkata /etc/localtime
 hwclock --systohc
 
