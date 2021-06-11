@@ -1,7 +1,11 @@
 #!/bin/bash
 
-#Install needed software
-pacman -S networkmanager intel-ucode ufw lightdm-gtk-greeter xorg-xinit xorg-server grub efibootmgr --noconfirm --needed
+#Install software
+pacman -S networkmanager \
+          intel-ucode ufw \
+          xfce4 lightdm-gtk-greeter \
+          xorg-xinit xorg-server grub \
+          efibootmgr --noconfirm --needed
 
 # Set locale to en_US.UTF-8 UTF-8
 sed -i '/en_US.UTF-8 UTF-8/s/^#//g' /etc/locale.gen
