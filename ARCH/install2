@@ -84,8 +84,13 @@ swapon /dev/sda2
 
 # Install Arch Linux
 echo "Installing Arch Linux Base"
-pacstrap /mnt base base-devel linux-lts linux-lts-headers linux-hardened linux-hardened-headers linux-firmware git --noconfirm
-#pacstrap /mnt base base-devel linux linux-headers linux-lts linux-lts-headers linux-firmware git --noconfirm
+pacstrap /mnt base \
+              linux-firmware \
+              linux-hardened \
+              linux-hardened-headers \
+              intel-ucode nano git zsh --noconfirm
+              
+#linux linux-headers[stable] or linux-lts linux-lts-headers[lts]
 genfstab -U /mnt >> /mnt/etc/fstab
 
 # Copy post-install system cinfiguration script to new /root
@@ -105,4 +110,5 @@ EOF
 echo "If Chroot is sucessfull then installation sucessfull"
 echo "Press any key to reboot or Ctrl+C to cancel..."
 read -r tmpvar
+umount --all
 reboot
