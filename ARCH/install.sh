@@ -87,8 +87,7 @@ echo "Installing Arch Linux Base"
 pacstrap /mnt base \
               linux-firmware \
               linux-hardened \
-              linux-hardened-headers \
-              intel-ucode nano git zsh --noconfirm
+              linux-hardened-headers nano git --noconfirm
               
 #linux linux-headers[stable] or linux-lts linux-lts-headers[lts]
 genfstab -U /mnt >> /mnt/etc/fstab
