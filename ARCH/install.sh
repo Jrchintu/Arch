@@ -1,5 +1,6 @@
 #!/bin/bash
 # Sync time and package database
+timedatectl set-timezone Asia/Kolkata
 timedatectl set-ntp true
 pacman -Syy
 
