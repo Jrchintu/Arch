@@ -1,0 +1,108 @@
+#!/bin/bash
+# Set up network connection
+read -rp 'Are you connected to internet? [y/N]: ' neton
+if ! [ "$neton" = 'y' ] && ! [ "$neton" = 'Y' ]; then
+  echo "Please connect to internet"
+  exit
+fi
+
+# Filesystem mount warning
+export EFI1="+512M"
+export SWAP1="+8G"
+export ROOT1="+40G"
+export HOME1="0"
+clear
+echo "This script will create and format the partitions as follows:"
+echo ""
+echo "/dev/sda1 - 512Mib will be mounted as /boot/efi"
+echo "/dev/sda2 - 8GiB will be used as swap"
+echo "/dev/sda3 - 30GiB of root /"
+echo "/dev/sda4 - REST of /home"
+echo ""
+read -rp 'Continue? [Y/N]: ' FSOK
+if [[ "$FSOK" = 'y' ]] || [[ "$FSOK" = 'Y' ]]; then
+  clear
+  echo "Enter Size For   /Efi     [Default= $EFI1][Use 0 For All Free Space & G=Gb;M=Mb & ctrl+c For Default]"
+  read -re -i "+512M" EFI1
+  clear
+  echo "You Choose $EFI1 For [Efi]"
+  echo ""
+  echo "Enter Size For   /Swap    [Default= $SWAP1][Use 0 For All Free Space & G=Gb;M=Mb & ctrl+c For Default]"
+  read -re -i "+8G" SWAP1
+  clear
+  echo "You Choose $SWAP1 For [Swap]"
+  echo ""
+  echo "Enter Size For   /Root    [Default= $ROOT1][Use 0 For All Free Space & G=Gb;M=Mb & ctrl+c For Default]"
+  read -re -i "+30G" ROOT1
+  clear
+  echo "You Choose $ROOT1 For [Root]"
+  echo ""
+  echo "Enter Size For   /Home    [Default= $HOME1][Use 0 For All Free Space & G=Gb;M=Mb & ctrl+c For Default]"
+  read -re -i "0" HOME1
+  clear
+  echo "You Choose $HOME1 For [HOME]"
+
+  exit
+else
+  echo ""
+fi
+
+# Make partation table {x:x:x}=={partation_no:starting_block:desired_size}
+sgdisk -Z /dev/sda                                    # destroy existing mbr or gpt structures on disk
+sgdisk -a 2048 -o                                     # new gpt disk 2048 alignment
+sgdisk -n 0:0:"$ROOT1" -t 0:8300 -c 0:"root" /dev/sda # partition 0 (ROOT), default start, 40GB
+sgdisk -n 2:0:"$HOME1" -t 2:8200 -c 2:"swap" /dev/sda # partition 2 (SWAP), default start, 8GB
+sgdisk -n 3:0:"$EFI1" -t 3:ef00 -c 3:"efi" /dev/sda   # partition 3 (ESP), default start, 512MB
+sgdisk -n 1:0:"$HOME1" -t 1:8300 -c 1:"home" /dev/sda # partition 1 (HOME), default start, Remaning space
+
+# Inform the OS of partition table changes
+clear
+sgdisk -p /dev/sda
+echo "Press any key to continue or ctrl+c to exit"
+read -r tmpvar
+partprobe /dev/sda
+fdisk -l /dev/sda
+
+# Make filesystem
+mkfs.fat -F32 /dev/sda3
+mkfs.ext4 /dev/sda0
+mkfs.ext4 /dev/sda1
+
+# Make directory before mount
+mkdir -pv /mnt/boot/efi
+mkdir -pv /mnt/home
+
+# Mount filesystem and enable swap
+mount /dev/sda0 /mnt
+mount /dev/sda3 /mnt/boot/efi
+mount /dev/sda1 /mnt/home
+mkswap /dev/sda2
+swapon /dev/sda2
+
+# Set time to hw clock
+timedatectl set-ntp true
+
+# Install Arch Linux
+echo "Starting install.."
+echo "Installing Arch Linux, KDE with Konsole and Dolphin and GRUB2 as bootloader"
+pacstrap /mnt base base-devel zsh grml-zsh-config grub os-prober intel-ucode efibootmgr dosfstools freetype2 fuse2 mtools iw wpa_supplicant dialog xorg xorg-server xorg-xinit mesa xf86-video-intel xfce4
+
+# Generate fstab
+genfstab -U /mnt >>/mnt/etc/fstab
+
+# Copy post-install system cinfiguration script to new /root
+cp -rfv post-install.sh /mnt/root
+chmod a+x /mnt/root/post-install.sh
+
+# Chroot into new system
+echo "After chrooting into newly installed OS, please run the post-install.sh by executing ./post-install.sh"
+echo "Press any key to chroot or ctrl+c to exit"
+read -r tmpvar
+arch-chroot /mnt /bin/bash
+
+# Finish
+echo "If post-install.sh was run succesfully, you will now have a fully working bootable Arch Linux system installed."
+echo "The only thing left is to reboot into the new system."
+echo "Press any key to reboot or Ctrl+C to cancel..."
+read -r tmpvar
+reboot
