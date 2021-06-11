@@ -4,7 +4,7 @@
 mkinitcpio -P
 
 #Install needed software
-pacman -S networkmanager ufw lightdm-gtk-greeter xorg grub efibootmgr --noconfirm --needed
+pacman -S networkmanager intel-ucode ufw lightdm-gtk-greeter xorg grub efibootmgr --noconfirm --needed
 
 # Set locale to en_US.UTF-8 UTF-8
 sed -i '/en_US.UTF-8 UTF-8/s/^#//g' /etc/locale.gen
@@ -45,7 +45,7 @@ echo "Set root password"
 passwd
 
 # add new user
-useradd -m -G wheel,power,input,storage,uucp,network -s /usr/bin/zsh chintu
+useradd -m -G wheel,power,input,storage,uucp,network -s /usr/bin/bash chintu
 sed --in-place 's/^#\s*\(%wheel\s\+ALL=(ALL)\s\+NOPASSWD:\s\+ALL\)/\1/' /etc/sudoers
 echo "Set password for new user chintu"
 passwd chintu
