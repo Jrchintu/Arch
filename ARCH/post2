@@ -4,7 +4,7 @@
 mkinitcpio -P
 
 #Install needed software
-pacman -S networkmanager ufw lightdm-gtk-greeter --noconfirm --needed
+pacman -S networkmanager ufw lightdm-gtk-greeter xorg grub efibootmgr --noconfirm --needed
 
 # Set locale to en_US.UTF-8 UTF-8
 sed -i '/en_US.UTF-8 UTF-8/s/^#//g' /etc/locale.gen
@@ -30,6 +30,11 @@ ufw default deny incoming
 ufw default allow outgoing
 ufw enable
 
+#install yay
+git clone https://aur.archlinux.org/yay.git
+cd yay/
+makepkg -si PKGBUILD
+
 # Enable service
 systemctl enable lightdm.service
 systemctl enable NetworkManager.service
@@ -46,5 +51,4 @@ echo "Set password for new user chintu"
 passwd chintu
 
 #EXIT
-umount -a
 echo "Configuration done. exiting chroot."
