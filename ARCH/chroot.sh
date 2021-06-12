@@ -45,14 +45,26 @@ systemctl enable NetworkManager.service
 systemctl enable ufw.service
 
 # Set root password
+clear
 echo "Set root password"
 passwd
 
 # add new user
-useradd -m -G wheel,power,input,storage,uucp,network -s /usr/bin/bash chintu
+clear
+echo "Adding new user"
+read -re -i "chintu" USER1
+useradd -m -G wheel,power,input,storage,uucp,network -s /usr/bin/bash "$USER1"
 sed --in-place 's/^#\s*\(%wheel\s\+ALL=(ALL)\s\+NOPASSWD:\s\+ALL\)/\1/' /etc/sudoers
-echo "Set password for new user chintu"
-passwd chintu
+echo "Set password for new user $USER1"
+passwd "$USER1"
+
+#Add profile.d scripts
+clear
+echo "Adding profile.d scripts"
+rm -rf /etc/profile.d/*alias*  /etc/profile.d/*ps1*
+curl -LO https://raw.githubusercontent.com/Jrchintu/CDN/main/ARCH/req/alias.sh >> /etc/profile.d/alias.sh
+curl -LO https://raw.githubusercontent.com/Jrchintu/CDN/main/ARCH/req/ps1.sh >> /etc/profile.d/ps1.sh
+chmod a+x /etc/profile.d/*
 
 #EXIT
-echo "Configuration done. exiting chroot."
+echo "Configuration done. exiting chroot or add extra stuff of ur choice"
