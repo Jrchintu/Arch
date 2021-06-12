@@ -61,21 +61,25 @@ sgdisk -n 1:0:"$HOME1" -t 1:8300 -c 1:"home" /dev/sda # partition 1 (HOME), defa
 # Inform the OS of partition table changes
 clear
 sgdisk -p /dev/sda
-echo "Press any key to continue or ctrl+c to exit"
+echo "Press any key to write partation continue or ctrl+c to exit"
 read -r tmpvar
 partprobe /dev/sda
 fdisk -l /dev/sda
 
 # Make filesystem
+clear
+echo "making filesystem efi->fat32 root&home->ext4 swap->swap"
 mkfs.fat -F32 /dev/sda3
 mkfs.ext4 /dev/sda0
 mkfs.ext4 /dev/sda1
 
 # Make directory before mount
+echo "Making directory before mount"
 mkdir -pv /mnt/boot/efi
 mkdir -pv /mnt/home
 
 # Mount filesystem and enable swap
+echo "Mounting filesystems"
 mount /dev/sda0 /mnt
 mount /dev/sda3 /mnt/boot/efi
 mount /dev/sda1 /mnt/home
@@ -83,27 +87,35 @@ mkswap /dev/sda2
 swapon /dev/sda2
 
 # Install Arch Linux
+clear
 echo "Installing Arch Linux Base"
 pacstrap /mnt base \
               linux-firmware \
               linux-hardened \
               linux-hardened-headers nano git --noconfirm
-              
-#linux linux-headers[stable] or linux-lts linux-lts-headers[lts]
+              #linux linux-headers[stable] or linux-lts linux-lts-headers[lts]
+
+#Generate fstab
+clear
+echo "Generating fstab"
 genfstab -U /mnt >> /mnt/etc/fstab
 
 # Copy chroot.sh to /root
+clear
+echo "Downloading chroot script"
 curl https://raw.githubusercontent.com/Jrchintu/CDN/main/ARCH/chroot.sh >>./chroot.sh
 cp -rfv chroot.sh /mnt/root
 chmod a+x /mnt/root/chroot.sh
 
 # Chroot into new system
+clear
 echo "Base archlinux is installed chroot into system and type [ bash chroot.sh ]"
 echo "Press any key to chroot or ctrl+c to exit"
 read -r tmpvar
 arch-chroot /mnt/root
 
 # Finish
+clear
 echo "If Chroot is sucessfull then installation sucessfull"
 echo "Press any key to reboot or Ctrl+C to cancel..."
 read -r tmpvar
