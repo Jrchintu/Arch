@@ -1,15 +1,6 @@
 #!/bin/bash
-# Sync time and package database
-timedatectl set-timezone Asia/Kolkata
-timedatectl set-ntp true
-pacman -Syy
-
-# Set up network connection & clock
-read -rp 'Are you connected to internet? [y/N]: ' neton
-if ! [ "$neton" = 'y' ] && ! [ "$neton" = 'Y' ]; then
-  echo "Please connect to internet"
-  exit
-fi
+# Set up network connection
+ping -q -w1 -c1 google.com &>/dev/null && : || echo "offline:connect to internet" && exit
 
 # Partationing
 export EFI1="+512M"
@@ -52,26 +43,24 @@ fi
 
 # Make partation table {x:x:x}=={partation_no:starting_block:desired_size}
 sgdisk -Z /dev/sda                                    # destroy existing mbr or gpt structures on disk
-sgdisk -a 4096 -o                                     # new gpt disk 2048 alignment
-sgdisk -n 0:0:"$ROOT1" -t 0:8300 -c 0:"root" /dev/sda # partition 0 (ROOT), default start, 40GB
-sgdisk -n 2:0:"$HOME1" -t 2:8200 -c 2:"swap" /dev/sda # partition 2 (SWAP), default start, 8GB
-sgdisk -n 3:0:"$EFI1" -t 3:ef00 -c 3:"efi" /dev/sda   # partition 3 (ESP), default start, 512MB
-sgdisk -n 1:0:"$HOME1" -t 1:8300 -c 1:"home" /dev/sda # partition 1 (HOME), default start, Remaning space
+sgdisk -a 2048 -o                                     # new gpt disk 2048 alignment
+sgdisk -n 1:0:"$ROOT1" -t 1:8300 -c 1:"root" /dev/sda # partition 1 (ROOT), default start, 40GB
+sgdisk -n 3:0:"$SWAP1" -t 3:8200 -c 3:"swap" /dev/sda # partition 3 (SWAP), default start, 8GB
+sgdisk -n 4:0:"$EFI1" -t 4:ef00 -c 4:"efi" /dev/sda   # partition 4 (ESP), default start, 512MB
+sgdisk -n 2:0:"$HOME1" -t 2:8300 -c 2:"home" /dev/sda # partition 2 (HOME), default start, Remaning space
 
 # Inform the OS of partition table changes
-clear
 sgdisk -p /dev/sda
 echo "Press any key to write partation continue or ctrl+c to exit"
 read -r tmpvar
 partprobe /dev/sda
-fdisk -l /dev/sda
+gdisk -l /dev/sda
 
 # Make filesystem
-clear
 echo "making filesystem efi->fat32 root&home->ext4 swap->swap"
 mkfs.fat -F32 /dev/sda3
-mkfs.ext4 /dev/sda0
 mkfs.ext4 /dev/sda1
+mkfs.ext4 /dev/sda2
 
 # Make directory before mount
 echo "Making directory before mount"
@@ -80,11 +69,16 @@ mkdir -pv /mnt/home
 
 # Mount filesystem and enable swap
 echo "Mounting filesystems"
-mount /dev/sda0 /mnt
+mount /dev/sda1 /mnt
 mount /dev/sda3 /mnt/boot/efi
-mount /dev/sda1 /mnt/home
-mkswap /dev/sda2
-swapon /dev/sda2
+mount /dev/sda2 /mnt/home
+mkswap /dev/sda3
+swapon /dev/sda3
+
+# Sync time and package database
+timedatectl set-timezone Asia/Kolkata
+timedatectl set-ntp true
+pacman -Syy
 
 # Install Arch Linux
 clear
