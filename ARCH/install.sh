@@ -30,30 +30,29 @@ if [[ "$FSOK" = 'y' ]] || [[ "$FSOK" = 'Y' ]]
   echo "Enter Size For   /Efi     [Default= $EFI1][Use 0 For All Free Space & G=Gb;M=Mb & ctrl+c For Default]"
   read -re -i "$EFI1" EFI1
   clear
-  echo "You Choose $EFI1 For [Efi]"
-  echo ""
   echo "Enter Size For   /Swap    [Default= $SWAP1][Use 0 For All Free Space & G=Gb;M=Mb & ctrl+c For Default]"
   read -re -i "$SWAP1" SWAP1
   clear
-  echo "You Choose $SWAP1 For [Swap]"
-  echo ""
   echo "Enter Size For   /Root    [Default= $ROOT1][Use 0 For All Free Space & G=Gb;M=Mb & ctrl+c For Default]"
   read -re -i "$ROOT1" ROOT1
   clear
-  echo "You Choose $ROOT1 For [Root]"
-  echo ""
   echo "Enter Size For   /Home    [Default= $HOME1][Use 0 For All Free Space & G=Gb;M=Mb & ctrl+c For Default]"
   read -re -i "$HOME1" HOME1
   clear
-  echo "You Choose $HOME1 For [HOME]"
-  exit
+  echo "[Root] = $ROOT1"
+  echo "[HOME] = $HOME1"
+  echo "[Swap] = $SWAP1"
+  echo "[/Efi] = $EFI1"
+  read -rp 'Continue? [Y/N]: ' FSOK
+  if [[ "$FSOK" = 'n' ]] || [[ "$FSOK" = 'N' ]]
+  then exit; else :; fi
 else
   echo ""
 fi
 
 # Make partation table {x:x:x}=={partation_no:starting_block:desired_size}
 sgdisk -Z /dev/sda                                    # destroy existing mbr or gpt structures on disk
-sgdisk -a 2048 -o                                     # new gpt disk 2048 alignment
+sgdisk -a 4096 -o                                     # new gpt disk 2048 alignment
 sgdisk -n 0:0:"$ROOT1" -t 0:8300 -c 0:"root" /dev/sda # partition 0 (ROOT), default start, 40GB
 sgdisk -n 2:0:"$HOME1" -t 2:8200 -c 2:"swap" /dev/sda # partition 2 (SWAP), default start, 8GB
 sgdisk -n 3:0:"$EFI1" -t 3:ef00 -c 3:"efi" /dev/sda   # partition 3 (ESP), default start, 512MB
