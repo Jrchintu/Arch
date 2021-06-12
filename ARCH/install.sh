@@ -108,5 +108,5 @@ arch-chroot /mnt/root
 echo "If Chroot is sucessfull then installation sucessfull"
 echo "Press any key to reboot or Ctrl+C to cancel..."
 read -r tmpvar
-umount --all
+umount -far
 reboot
