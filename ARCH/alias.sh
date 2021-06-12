@@ -1,4 +1,4 @@
-# ALIAS
+#!/bin/bash
 alias ls='ls --color=auto --time-style long-iso'
 alias la='ls --color=auto -a --time-style long-iso'
 alias lp='ls --color=auto -lah --time-style long-iso'
