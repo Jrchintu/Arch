@@ -55,7 +55,7 @@ clear
 groupadd sudo
 echo "Adding new user"
 read -re -i "chintu" USER1
-useradd -m -G wheel,power,input,storage,uucp,network -s /usr/bin/bash "$USER1"
+useradd -m -G wheel,power,input,storage,uucp,network,sudo -s /usr/bin/bash "$USER1"
 sed --in-place 's/^#\s*\(%wheel\s\+ALL=(ALL)\s\+NOPASSWD:\s\+ALL\)/\1/' /etc/sudoers
 echo "Set password for new user $USER1"
 passwd "$USER1"
