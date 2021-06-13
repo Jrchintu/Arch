@@ -110,10 +110,10 @@ chmod a+x /mnt/root/chroot.sh
 
 # Chroot into new system
 clear
-echo "Base archlinux is installed chroot into system and type [ bash chroot.sh ]"
+echo "Base archlinux is installed chroot into system and type [ cd root && bash chroot.sh ]"
 echo "Press any key to chroot or ctrl+c to exit"
 read -r tmpvar
-arch-chroot /mnt/root
+arch-chroot /mnt
 
 # Finish
 clear
