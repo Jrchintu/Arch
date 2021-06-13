@@ -2,7 +2,7 @@
 
 #Install software
 pacman -S networkmanager \
-          intel-ucode ufw \
+          intel-ucode ufw sudo \
           xfce4 lightdm-gtk-greeter \
           xorg-xinit xorg-server grub \
           efibootmgr --noconfirm --needed
@@ -52,6 +52,7 @@ passwd
 
 # add new user
 clear
+groupadd sudo
 echo "Adding new user"
 read -re -i "chintu" USER1
 useradd -m -G wheel,power,input,storage,uucp,network -s /usr/bin/bash "$USER1"
