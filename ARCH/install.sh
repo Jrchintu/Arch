@@ -1,6 +1,13 @@
 #!/bin/bash
 # Set up network connection
-ping -q -w1 -c1 google.com &>/dev/null && : || echo "offline:connect to internet" && exit
+nc -z 8.8.8.8 53  >/dev/null 2>&1
+online=$?
+if [ $online -eq 0 ]; then
+    echo "Online"
+else
+    echo "Offline"
+    exit
+fi
 
 # Partationing
 export EFI1="+512M"
