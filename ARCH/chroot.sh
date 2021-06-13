@@ -38,6 +38,7 @@ ufw enable
 git clone https://aur.archlinux.org/yay.git
 cd yay/ || exit
 makepkg -si PKGBUILD
+cd .. && rm -rf ./yay
 
 # Enable service
 systemctl enable lightdm.service
