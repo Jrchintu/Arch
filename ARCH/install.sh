@@ -1,12 +1,9 @@
 #!/bin/bash
 # Set up network connection
-nc -z 8.8.8.8 53  >/dev/null 2>&1
-online=$?
-if [ $online -eq 0 ]; then
-    echo "Online"
+if : >/dev/tcp/8.8.8.8/53; then
+  echo 'Internet available.'
 else
-    echo "Offline"
-    exit
+  echo 'Offline.'
 fi
 
 # Partationing
