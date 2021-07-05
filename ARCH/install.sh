@@ -1,9 +1,9 @@
 #!/bin/bash
 # Set up network connection
 if : >/dev/tcp/8.8.8.8/53; then
-  echo 'Internet available.'
+    echo 'Internet available.'
 else
-  echo 'Offline.'
+    echo 'Offline.'
 fi
 
 # Partationing
@@ -20,29 +20,28 @@ echo "/dev/sda3 - $ROOT1 of root"
 echo "/dev/sda4 - $HOME1 of /home"
 echo ""
 read -rp 'Continue? [Y/N]: ' FSOK
-if [[ "$FSOK" = 'y' ]] || [[ "$FSOK" = 'Y' ]]
-  then clear
-  echo "Enter Size For   /Efi     [Default= $EFI1][Use 0 For All Free Space & G=Gb;M=Mb & ctrl+c For Default]"
-  read -re -i "$EFI1" EFI1
-  clear
-  echo "Enter Size For   /Swap    [Default= $SWAP1][Use 0 For All Free Space & G=Gb;M=Mb & ctrl+c For Default]"
-  read -re -i "$SWAP1" SWAP1
-  clear
-  echo "Enter Size For   /Root    [Default= $ROOT1][Use 0 For All Free Space & G=Gb;M=Mb & ctrl+c For Default]"
-  read -re -i "$ROOT1" ROOT1
-  clear
-  echo "Enter Size For   /Home    [Default= $HOME1][Use 0 For All Free Space & G=Gb;M=Mb & ctrl+c For Default]"
-  read -re -i "$HOME1" HOME1
-  clear
-  echo "[Root] = $ROOT1"
-  echo "[HOME] = $HOME1"
-  echo "[Swap] = $SWAP1"
-  echo "[/Efi] = $EFI1"
-  read -rp 'Continue? [Y/N]: ' FSOK
-  if [[ "$FSOK" = 'n' ]] || [[ "$FSOK" = 'N' ]]
-  then exit; else :; fi
+if [[ "$FSOK" = 'y' ]] || [[ "$FSOK" = 'Y' ]]; then
+    clear
+    echo "Enter Size For   /Efi     [Default= $EFI1][Use 0 For All Free Space & G=Gb;M=Mb & ctrl+c For Default]"
+    read -re -i "$EFI1" EFI1
+    clear
+    echo "Enter Size For   /Swap    [Default= $SWAP1][Use 0 For All Free Space & G=Gb;M=Mb & ctrl+c For Default]"
+    read -re -i "$SWAP1" SWAP1
+    clear
+    echo "Enter Size For   /Root    [Default= $ROOT1][Use 0 For All Free Space & G=Gb;M=Mb & ctrl+c For Default]"
+    read -re -i "$ROOT1" ROOT1
+    clear
+    echo "Enter Size For   /Home    [Default= $HOME1][Use 0 For All Free Space & G=Gb;M=Mb & ctrl+c For Default]"
+    read -re -i "$HOME1" HOME1
+    clear
+    echo "[Root] = $ROOT1"
+    echo "[HOME] = $HOME1"
+    echo "[Swap] = $SWAP1"
+    echo "[/Efi] = $EFI1"
+    read -rp 'Continue? [Y/N]: ' FSOK
+    if [[ "$FSOK" = 'n' ]] || [[ "$FSOK" = 'N' ]]; then exit; else :; fi
 else
-  echo ""
+    echo ""
 fi
 
 # Make partation table {x:x:x}=={partation_no:starting_block:desired_size}
@@ -68,14 +67,14 @@ mkfs.ext4 /dev/sda2
 
 # Make directory before mount
 echo "Making directory before mount"
-mkdir -pv /mnt/boot/efi
-mkdir -pv /mnt/home
+mkdir -pv /mnt/{boot/efi,home,var,snapshots}
 
 # Mount filesystem and enable swap
 echo "Mounting filesystems"
-mount /dev/sda1 /mnt
-mount /dev/sda3 /mnt/boot/efi
-mount /dev/sda2 /mnt/home
+mount -o "defaults,noatime" /dev/sda3 /mnt/boot/efi
+mount -o "subvol=home,defaults,noatime,compress=zstd" /dev/sda1 /mnt/home
+mount -o "subvol=var,defaults,noatime,compress=zstd" /dev/sda1 /mnt/var
+mount -o "subvol=snapshots,defaults,noatime,compress=zstd" /dev/sda1 /mnt/snapshots
 mkswap /dev/sda3
 swapon /dev/sda3
 
@@ -88,15 +87,15 @@ pacman -Syy
 clear
 echo "Installing Arch Linux Base"
 pacstrap /mnt base \
-              linux-firmware \
-              linux-hardened \
-              linux-hardened-headers nano git --noconfirm
-              #linux linux-headers[stable] or linux-lts linux-lts-headers[lts]
+    linux-firmware \
+    linux-hardened \
+    linux-hardened-headers nano git --noconfirm
+#linux linux-headers[stable] or linux-lts linux-lts-headers[lts]
 
 #Generate fstab
 clear
 echo "Generating fstab"
-genfstab -U /mnt >> /mnt/etc/fstab
+genfstab -U /mnt >>/mnt/etc/fstab
 
 # Copy chroot.sh to /root
 clear
