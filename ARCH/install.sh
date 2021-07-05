@@ -65,23 +65,21 @@ mkfs.fat -F32 /dev/sda3
 mkfs.ext4 /dev/sda1
 mkfs.ext4 /dev/sda2
 
-# Make directory before mount
-echo "Making directory before mount"
-mkdir -pv /mnt/{boot/efi,home,var,snapshots}
-
 # Mount filesystem and enable swap
 echo "Mounting filesystems"
-mount -o "defaults,noatime" /dev/sda3 /mnt/boot/efi
-mount -o "subvol=home,defaults,noatime,compress=zstd" /dev/sda1 /mnt/home
+mount -o "subvol=root,$PARTITION_OPTIONS,compress=zstd" /dev/sda1 /mnt
+mkdir -pv /mnt/{boot/efi,home,var,snapshots}
+mount -o "defaults,noatime" /dev/sda4 /mnt/boot/efi
 mount -o "subvol=var,defaults,noatime,compress=zstd" /dev/sda1 /mnt/var
 mount -o "subvol=snapshots,defaults,noatime,compress=zstd" /dev/sda1 /mnt/snapshots
+mount -o "subvol=home,defaults,noatime,compress=zstd" /dev/sda2 /mnt/home
 mkswap /dev/sda3
 swapon /dev/sda3
 
 # Sync time and package database
 timedatectl set-timezone Asia/Kolkata
 timedatectl set-ntp true
-pacman -Syy
+pacman -Syyu
 
 # Install Arch Linux
 clear
