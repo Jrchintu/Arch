@@ -43,7 +43,7 @@ echo 'br() {
 }' >>"$HOME"/.bashrc
 
 # MKDIR
-mkdir rom && chmod -R 666 rom
+mkdir rom && chmod -R 777 rom
 cd rom && mkdir .repo && br
 read -rep "What Branch From Local_manifest Repo U wanna clone [Case Sensitive]? " LMBRANCH
 git clone https://github.com/Jrchintu/local_manifest --depth 1 -b "$LMBRANCH" .repo/local_manifests
