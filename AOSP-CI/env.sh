@@ -4,7 +4,7 @@ LC_ALL=C && LANG=C
 # ENV SETUP
 sudo apt update -y && sudo apt upgrade -y && sudo apt autoremove --purge -y
 sudo add-apt-repository ppa:openjdk-r/ppa -y
-sudo apt install git-core p7zip-full rclone pigz -y
+sudo apt install git-core p7zip-full aria2 rclone pigz -y
 curl https://storage.googleapis.com/git-repo-downloads/repo >./repo
 sudo mv repo /usr/bin/repo && sudo chmod a+x /usr/bin/repo
 PATH=/usr/bin/repo:$PATH
