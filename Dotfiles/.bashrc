@@ -23,12 +23,10 @@ export PS1='[\u@\h \W]\$ '
 # Shopt
 shopt -s cdspell autocd cmdhist
 
-# iX Paster
+# IX PASTER
 #     ix hello.txt              # paste file (name/ext will be set).
 #     echo Hello world. | ix    # read from STDIN (won't set name/ext).
 #     ix -n 1 self_destruct.txt # paste will be deleted after one read.
-#     ix -i ID hello.txt        # replace ID, if you have permission.
-#     ix -d ID
 ix() {
     local opts
     local OPTIND
