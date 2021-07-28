@@ -29,4 +29,5 @@ EOF
 ccache -M 30G # OPTIONAL
 
 # ALIAS
-echo 'repo sync  --force-sync --current-branch --no-tags --no-clone-bundle --optimized-fetch --prune -j$(nproc --all)' >>$HOME/.bashrc
+echo '' >>$HOME/.bashrc && echo '# ALias' >>$HOME/.bashrc
+echo 'alias fsync="repo sync  --force-sync --current-branch --no-tags --no-clone-bundle --optimized-fetch --prune -j$(nproc --all)"' >>$HOME/.bashrc
