@@ -12,7 +12,7 @@ git clone --depth=1 https://github.com/akhilnarang/scripts.git scripts
 cd scripts && sudo bash setup/android_build_env.sh && cd .. && rm -rf scripts
 
 # BASHRC
-cat <<EOF >> $HOME/.bashrc
+cat <<EOF >> "$HOME"/.bashrc
 export USE_CCACHE=1
 export CCACHE_DIR="$HOME/.ccache"
 export CCACHE_EXEC="$(which ccache)"
@@ -23,11 +23,27 @@ export BUILD_BROKEN_DUP_RULES=true
 export SKIP_ABI_CHECKS=true
 export SKIP_API_CHECKS=true
 export WITHOUT_CHECK_API=true
+export TZ=Asia/Kolkata
 if [[ \$(pidof soong_ui) ]]; then :; else ccache -z; fi
 EOF
 
 ccache -M 30G # OPTIONAL
 
 # ALIAS
-echo '' >>$HOME/.bashrc && echo '# ALias' >>$HOME/.bashrc
-echo 'alias fsync="repo sync  --force-sync --current-branch --no-tags --no-clone-bundle --optimized-fetch --prune -j$(nproc --all)"' >>$HOME/.bashrc
+echo '' >>"$HOME"/.bashrc && echo '# ALias' >>"$HOME"/.bashrc
+echo 'alias fsync="repo sync  --force-sync --current-branch --no-tags --no-clone-bundle --optimized-fetch --prune -j$(nproc --all)"' >>"$HOME"/.bashrc
+
+# Funct
+echo '' >>"$HOME"/.bashrc && echo '# Functions' >>"$HOME"/.bashrc
+echo 'mkcd(){
+    mkdir $1 && cd $1
+}' >>"$HOME"/.bashrc
+echo 'br() {
+    for ((i = 1; i <= $(tput cols); i++)); do echo -n -; done
+}' >>"$HOME"/.bashrc
+
+# MKDIR
+mkdir rom && chmod -R 666 rom
+cd rom && mkdir .repo && br
+read -rep "What Branch From Local_manifest Repo U wanna clone [Case Sensitive]? " LMBRANCH
+git clone https://github.com/Jrchintu/local_manifest --depth 1 -b "$LMBRANCH" .repo/local_manifests
