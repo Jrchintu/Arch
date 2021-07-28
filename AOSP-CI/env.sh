@@ -42,6 +42,9 @@ echo 'br() {
     for ((i = 1; i <= $(tput cols); i++)); do echo -n -; done
 }' >>"$HOME"/.bashrc
 
+# Source bashrc
+source "$HOME"/.bashrc
+
 # MKDIR
 mkdir rom && chmod -R 777 rom
 cd rom && mkdir .repo && br
