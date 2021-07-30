@@ -46,6 +46,5 @@ ufw enable
 
 # PROFILE.D [WIP]
 rm -rf /etc/profile.d/*alias* /etc/profile.d/*ps1*
-curl -LO https://raw.githubusercontent.com/Jrchintu/CDN/main/ARCH/req/alias.sh >>/etc/profile.d/alias.sh
-curl -LO https://raw.githubusercontent.com/Jrchintu/CDN/main/ARCH/req/ps1.sh >>/etc/profile.d/ps1.sh
+curl -L https://github.com/Jrchintu/CDN/raw/main/DOT/.bashrc -o /etc/profile.d/.bashrc
 chmod a+x /etc/profile.d/*
