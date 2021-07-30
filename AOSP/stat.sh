@@ -26,6 +26,9 @@
         echo '++++++++SYSTEM++++++++'
         cat /etc/os*
 
+        echo '++++++++CPU-stats++++++++'
+        lscpu
+        
         echo '++++++++ENV-stats++++++++'
         env
 } >>./stats.md

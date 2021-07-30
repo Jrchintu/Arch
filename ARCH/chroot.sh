@@ -2,25 +2,25 @@
 
 #Install software
 pacman -S networkmanager \
-          intel-ucode ufw sudo \
-          xfce4 lightdm-gtk-greeter \
-          xorg-xinit xorg-server grub \
-          efibootmgr --noconfirm --needed
+    intel-ucode ufw sudo \
+    xfce4 lightdm-gtk-greeter \
+    xorg-xinit xorg-server grub \
+    efibootmgr --noconfirm --needed
 
 # Set locale to en_US.UTF-8 UTF-8
 sed -i '/en_US.UTF-8 UTF-8/s/^#//g' /etc/locale.gen
 locale-gen
-echo "LANG=en_US.UTF-8" >> /etc/locale.conf
+echo "LANG=en_US.UTF-8" >>/etc/locale.conf
 
 # Set date time
 ln -sf /usr/share/zoneinfo/Asia/Kolkata /etc/localtime
 hwclock --systohc
 
 # Set hostname
-echo "3542" >> /etc/hostname
+echo "3542" >>/etc/hostname
 echo "127.0.0.1	localhost
 ::1		localhost
-127.0.1.1 3542.localdomain 3542" >> /etc/hosts
+127.0.1.1 3542.localdomain 3542" >>/etc/hosts
 
 # Generate initramfs
 mkinitcpio -P
@@ -63,9 +63,9 @@ passwd "$USER1"
 #Add profile.d scripts
 clear
 echo "Adding profile.d scripts"
-rm -rf /etc/profile.d/*alias*  /etc/profile.d/*ps1*
-curl -LO https://raw.githubusercontent.com/Jrchintu/CDN/main/ARCH/req/alias.sh >> /etc/profile.d/alias.sh
-curl -LO https://raw.githubusercontent.com/Jrchintu/CDN/main/ARCH/req/ps1.sh >> /etc/profile.d/ps1.sh
+rm -rf /etc/profile.d/*alias* /etc/profile.d/*ps1*
+curl -LO https://raw.githubusercontent.com/Jrchintu/CDN/main/ARCH/req/alias.sh >>/etc/profile.d/alias.sh
+curl -LO https://raw.githubusercontent.com/Jrchintu/CDN/main/ARCH/req/ps1.sh >>/etc/profile.d/ps1.sh
 chmod a+x /etc/profile.d/*
 
 #EXIT

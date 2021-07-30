@@ -38,10 +38,22 @@ ix() {
     [ -f "$HOME/.netrc" ] && opts='-n'
     while getopts ":hd:i:n:" x; do
         case $x in
-            h) echo "ix [-d ID] [-i ID] [-n N] [opts]"; return;;
-            d) echo curl $opts -X DELETE ix.io/"$OPTARG"; return;;
-            i) opts="$opts -X PUT"; local id="$OPTARG";;
-            n) opts="$opts -F read:1=$OPTARG";;
+        h)
+            echo "ix [-d ID] [-i ID] [-n N] [opts]"
+            return
+            ;;
+        d)
+            echo curl $opts -X DELETE ix.io/"$OPTARG"
+            return
+            ;;
+        i)
+            opts="$opts -X PUT"
+            local id="$OPTARG"
+            ;;
+        n)
+            opts="$opts -F read:1=$OPTARG"
+            ;;
+        *) ;;
         esac
     done
     shift $((OPTIND - 1))
@@ -58,15 +70,15 @@ ix() {
 }
 urlencode() {
     local LC_ALL=C
-    for (( i = 0; i < ${#1}; i++ )); do
+    for ((i = 0; i < ${#1}; i++)); do
         : "${1:i:1}"
         case "$_" in
-            [a-zA-Z0-9.~_-])
-                printf '%s' "$_"
+        [a-zA-Z0-9.~_-])
+            printf '%s' "$_"
             ;;
 
-            *)
-                printf '%%%02X' "'$_"
+        *)
+            printf '%%%02X' "'$_"
             ;;
         esac
     done
@@ -77,26 +89,26 @@ urldecode() {
     printf '%b\n' "${_//%/\\x}"
 }
 rdp() {
-	xfreerdp /v:"$1" /u:"$2" /p:"$3" /dynamic-resolution /bpp:16 \
-	/network:auto /clipboard /compression -themes -wallpaper \
-	/auto-reconnect -glyph-cache /cert-ignore /network:modem  \
-	/audio-mode:1 
+    xfreerdp /v:"$1" /u:"$2" /p:"$3" /dynamic-resolution /bpp:16 \
+        /network:auto /clipboard /compression -themes -wallpaper \
+        /auto-reconnect -glyph-cache /cert-ignore /network:modem \
+        /audio-mode:1
 }
 man() {
-        env \
-                LESS_TERMCAP_mb="$(printf "\e[1;31m")" \
-                LESS_TERMCAP_md="$(printf "\e[1;31m")" \
-                LESS_TERMCAP_me="$(printf "\e[0m")" \
-                LESS_TERMCAP_se="$(printf "\e[0m")" \
-                LESS_TERMCAP_so="$(printf "\e[1;44;33m")" \
-                LESS_TERMCAP_ue="$(printf "\e[0m")" \
-                LESS_TERMCAP_us="$(printf "\e[1;32m")" \
-                        man "$@"
+    env \
+        LESS_TERMCAP_mb="$(printf "\e[1;31m")" \
+        LESS_TERMCAP_md="$(printf "\e[1;31m")" \
+        LESS_TERMCAP_me="$(printf "\e[0m")" \
+        LESS_TERMCAP_se="$(printf "\e[0m")" \
+        LESS_TERMCAP_so="$(printf "\e[1;44;33m")" \
+        LESS_TERMCAP_ue="$(printf "\e[0m")" \
+        LESS_TERMCAP_us="$(printf "\e[1;32m")" \
+        man "$@"
 }
 up() {
-    for LOOP in $1
-      do curl -T "$LOOP" https://transfer.sh/"$(basename "$LOOP")"
-      echo
+    for LOOP in $1; do
+        curl -T "$LOOP" https://transfer.sh/"$(basename "$LOOP")"
+        echo
     done
 }
 tg() {
@@ -144,7 +156,6 @@ alias pactree='pactree --color'
 alias vdir='vdir --color=auto'
 alias watch='watch --color'
 alias mkdir='mkdir -pv'
-
 
 # GIT
 #echo "https://jrchintu:$password@github.com" > ~/.git-credentials

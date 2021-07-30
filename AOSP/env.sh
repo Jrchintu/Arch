@@ -12,7 +12,7 @@ git clone --depth=1 https://github.com/akhilnarang/scripts.git scripts
 cd scripts && sudo bash setup/android_build_env.sh && cd .. && rm -rf scripts
 
 # BASHRC
-cat <<EOF >> "$HOME"/.bashrc
+cat <<EOF >>"$HOME"/.bashrc
 export USE_CCACHE=1
 export CCACHE_DIR="$HOME/.ccache"
 export CCACHE_EXEC="$(which ccache)"
