@@ -174,7 +174,7 @@ base() {
     sleep 1
     pacstrap /mnt base linux-firmware linux-zen linux-zen-headers \
         nano sudo git xf86-video-intel intel-ucode mesa \
-        base-devel \
+        base-devel ttf-liberation geany \
         networkmanager \
         grub efibootmgr
     genfstab -U /mnt >>/mnt/etc/fstab
@@ -200,7 +200,7 @@ chrootstuff() {
     br && echo "Setting new user $USER1 [Keep powerfull password in mind]"
     arch-chroot /mnt bash -c "groupadd sudo && useradd -mG wheel,sudo -s /usr/bin/bash $USER1 && exit"
     arch-chroot /mnt bash -c "passwd $USER1 && exit"
-    arch-chroot /mnt bash -c "sed --in-place 's/^#\s*\(%wheel\s\+ALL=(ALL)\s\+NOPASSWD:\s\+ALL\)/\1/' /etc/sudoers && exit"
+    arch-chroot /mnt bash -c "sed -i 's/^#\s*\(%wheel\s\+ALL=(ALL)\s\+ALL\)/\1/' /etc/sudoers && exit"
 
     br && echo -e "Enabling Systemd services...\n"
     arch-chroot /mnt bash -c "systemctl enable NetworkManager && exit"
@@ -214,8 +214,9 @@ chrootstuff() {
 
     br && echo -e "Editing pacman configuration files...\n"
     # Get chromium pacman package
-    arch-chroot /mnt bash -c "curl -L https://git.io/JWXpJ >/etc/pacman.conf && exit"
-    arch-chroot /mnt bash -c "curl -s https://download.opensuse.org/repositories/home:/ungoogled_chromium/Arch/x86_64/home_ungoogled_chromium_Arch.key | pacman-key -a - && exit"
+    arch-chroot /mnt bash -c "curl -s 'https://download.opensuse.org/repositories/home:/ungoogled_chromium/Arch/x86_64/home_ungoogled_chromium_Arch.key' | pacman-key -a - && exit"
+    arch-chroot /mnt bash -c "echo -e '\n[home_ungoogled_chromium_Arch]\nSigLevel = Required TrustAll && exit"
+    arch-chroot /mnt bash -c "echo -e 'Server = https://download.opensuse.org/repositories/home:/ungoogled_chromium/Arch/$arch' | tee -a /etc/pacman.conf && exit"
     # Enabling multilib in pacman
     arch-chroot /mnt bash -c "sed -i '93s/#\[/\[/' /etc/pacman.conf && sed -i '94s/#I/I/' /etc/pacman.conf && exit"
     # Tweaking pacman, uncomment options Color, TotalDownload and VerbosePkgList
@@ -304,34 +305,12 @@ browser() {
     cont
 }
 
-install-amd() {
-    pacstrap /mnt mesa lib32-mesa xf86-video-amdgpu vulkan-radeon lib32-vulkan-radeon
-    pacstrap /mnt libva-mesa-driver lib32-libva-mesa-driver mesa-vdpau lib32-mesa-vdpau
-}
-install-nvidia() {
+invidia() {
     br
     read -r -p "Do you want proprietary nvidia-390xx-dkms drivers? [y/N] " grapigs
     case "$grapigs" in
     [yY][eE][sS] | [yY])
         arch-chroot /mnt bash -c "sudo -u $USER1 paru -S --noconfirm nvidia-390xx-dkms nvidia-390xx-utils"
-        ;;
-    *) ;;
-
-    esac
-    cont
-}
-
-graphics() {
-    br
-    echo -e "Choose Graphic card drivers to install: \n"
-    echo -e "1. AMD \n2. Nvidia-390xx \n3. None"
-    read -r -p "Drivers [1/2/3]: " drivere
-    case "$drivere" in
-    1)
-        install-amd
-        ;;
-    2)
-        install-nvidia
         ;;
     *) ;;
 
@@ -345,7 +324,7 @@ extrastuff() {
     case "$extrayes" in
     [yY][eE][sS] | [yY])
         read -r -p "You can name some apps also [Ex byobu <seperate with space> tmux]: " xtraa
-        pacstrap /mnt neofetch cmatrix "$xtraa"
+        pacstrap /mnt neofetch cmatrix $xtraa
         ;;
     *) ;;
 
@@ -361,7 +340,7 @@ full-installation() {
     de
     installgrub
     browser
-    graphics
+    invidia
     extrastuff
     echo "Installation complete. Reboot you lazy bastard."
 }
@@ -378,11 +357,11 @@ step-installation() {
     echo "6.  Install DesktopEnv"
     echo "7.  Install Grub"
     echo "8.  Install Browser"
-    echo "9.  Install Graphic Drivers"
+    echo "9.  Install Nvidia Graphic Drivers"
     echo "10. Extra package stuff"
     br && read -rep "Enter the number of step[1-11]: " stepno && clear
 
-    array=(updatestuff partationing mounting base chrootstuff de installgrub browser graphics extrastuff)
+    array=(updatestuff partationing mounting base chrootstuff de installgrub browser invidia extrastuff)
     stepno=$((stepno - 1))
     while [ $stepno -lt ${#array[*]} ]; do
         ${array[$stepno]}
