@@ -15,7 +15,12 @@ export HISTSIZE=100000
 export HISTCONTROL="erasedups:ignoreboth"
 
 # PS1
-export PS1='[\u@\h \W]\$ '
+clrreset='\e[0m'
+clrwhite='\e[1;37m'
+clrgreen='\e[1;32m'
+clrred='\e[1;31m'
+export PS1="\[$clrwhite\]$USER@$HOSTNAME:\w \`if [ \$? = 0 ]; then echo -e '\[$clrgreen\]'; else echo -e '\[$clrred\]'; fi\`\\$ \[$clrreset\]"
+#export PS1='[\u@\h \W]\$ '
 
 # Enable Byobu Automatically
 #env TERM=xterm-256color byobu
@@ -51,7 +56,6 @@ ix() {
     }
     curl "$opts" -F f:1='<-' "$*" ix.io/"$id"
 }
-
 urlencode() {
     local LC_ALL=C
     for (( i = 0; i < ${#1}; i++ )); do
@@ -68,21 +72,87 @@ urlencode() {
     done
     printf '\n'
 }
-
 urldecode() {
     : "${1//+/ }"
     printf '%b\n' "${_//%/\\x}"
 }
-
 rdp() {
 	xfreerdp /v:"$1" /u:"$2" /p:"$3" /dynamic-resolution /bpp:16 \
 	/network:auto /clipboard /compression -themes -wallpaper \
 	/auto-reconnect -glyph-cache /cert-ignore /network:modem  \
 	/audio-mode:1 
 }
+man() {
+        env \
+                LESS_TERMCAP_mb="$(printf "\e[1;31m")" \
+                LESS_TERMCAP_md="$(printf "\e[1;31m")" \
+                LESS_TERMCAP_me="$(printf "\e[0m")" \
+                LESS_TERMCAP_se="$(printf "\e[0m")" \
+                LESS_TERMCAP_so="$(printf "\e[1;44;33m")" \
+                LESS_TERMCAP_ue="$(printf "\e[0m")" \
+                LESS_TERMCAP_us="$(printf "\e[1;32m")" \
+                        man "$@"
+}
+up() {
+    for LOOP in $1
+      do curl -T "$LOOP" https://transfer.sh/"$(basename "$LOOP")"
+      echo
+    done
+}
+tg() {
+    TGTEXT="$1"
+    MID=$(curl -s "https://api.telegram.org/bot${BOTAPI}/sendmessage" \
+        -d "text=$1&chat_id=${ID}" \
+        -d "disable_web_page_preview=true" \
+        -d "parse_mode=html" | jq .result.message_id) 1>/dev/null
+}
+tgdoc() {
+    curl -F chat_id="${ID}" \
+        -F document=@"$1" \
+        -F caption="$2" https://api.telegram.org/bot"${BOTAPI}"/sendDocument >/dev/null
+}
+del() {
+    RESULT=$(curl -sf --data-binary @"${1:--}" https://del.dog/documents) || {
+        echo "DEL-ERROR" >&2
+        return 1
+    }
+    KEY=$(printf "%s\n" "${RESULT}" | cut -d '"' -f6)
+    echo "https://del.dog/${KEY}"
+}
 
 # Alias
-alias thor='ls -thor'
-alias ls='ls -Ah --color=auto'
 alias speed='curl -s https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py | python -'
 alias packages='for i in {a..z} ; do echo -e $(pacman -Qq | grep ^${i}) >>/tmp/packages.txt ; echo >>/tmp/packages.txt ; done ; fmt -w $(tput cols) /tmp/packages.txt'
+alias thor='ls -thor'
+alias ls='ls -Ah --color=auto --time-style long-iso'
+alias la='ls --color=auto -a --time-style long-iso'
+alias lp='ls --color=auto -lah --time-style long-iso'
+alias l='ls --color=auto -A --time-style long-iso'
+alias cd..='cd ..'
+alias ..='cd ..'
+alias ...='cd ../../'
+alias ....='cd ../../../'
+alias .....='cd ../../../../'
+alias ff='find / -name'
+alias f='find . -name'
+alias grep='grep --color=auto'
+alias egrep='egrep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias ip='ip -c'
+alias pacman='pacman --color auto'
+alias pactree='pactree --color'
+alias vdir='vdir --color=auto'
+alias watch='watch --color'
+alias mkdir='mkdir -pv'
+
+
+# GIT
+#echo "https://jrchintu:$password@github.com" > ~/.git-credentials
+#git config --global credential.helper store
+alias gc="git clone"
+alias gcb="git clone --bare"
+alias gc1="git clone --depth=1"
+alias ga="git add -A"
+alias gcs="git commit -s"
+alias gp="git push"
+alias gcp="git add -A && git commit -s && git push"
