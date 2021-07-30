@@ -175,7 +175,7 @@ base() {
     pacstrap /mnt base linux-firmware linux-zen linux-zen-headers \
         nano sudo git xf86-video-intel intel-ucode mesa \
         base-devel ttf-liberation geany \
-        networkmanager \
+        networkmanager ufw \
         grub efibootmgr
     genfstab -U /mnt >>/mnt/etc/fstab
     cont
@@ -185,42 +185,12 @@ chrootstuff() {
     br && echo 'Chrooting Into Installed Archlinux'
     read -rep "Enter the username: " USER1
     read -rep "Enter the hostname: " HNAME
-    read -rep "Enter Region/Zone Eg.Asia/Kolkata:" rname
+    read -rep "Enter Region/Zone Eg.Asia/Kolkata:" RNAME
 
-    echo -e "Setting up Region and Language\n"
-    arch-chroot /mnt bash -c "ln -sf /usr/share/zoneinfo/$rname /etc/localtime && hwclock --systohc && exit"
-    arch-chroot /mnt bash -c "sed -i 's/#en_US.UTF-8/en_US.UTF-8/' /etc/locale.gen && locale-gen && echo 'LANG=en_US.UTF-8' > /etc/locale.conf && exit"
-
-    br && echo -e "Setting up Hostname\n"
-    arch-chroot /mnt bash -c "echo $HNAME > /etc/hostname && echo 127.0.0.1	$HNAME > /etc/hosts && echo ::1	$HNAME >> /etc/hosts && echo 127.0.1.1	$HNAME.localdomain	$HNAME >> /etc/hosts && exit"
-
-    br && echo "Setting new Root password [Keep powerfull password in mind]"
-    arch-chroot /mnt bash -c "passwd && exit"
-
-    br && echo "Setting new user $USER1 [Keep powerfull password in mind]"
-    arch-chroot /mnt bash -c "groupadd sudo && useradd -mG wheel,sudo -s /usr/bin/bash $USER1 && exit"
-    arch-chroot /mnt bash -c "passwd $USER1 && exit"
-    arch-chroot /mnt bash -c "sed -i 's/^#\s*\(%wheel\s\+ALL=(ALL)\s\+ALL\)/\1/' /etc/sudoers && exit"
-
-    br && echo -e "Enabling Systemd services...\n"
-    arch-chroot /mnt bash -c "systemctl enable NetworkManager && exit"
-
-    br && echo -e "Enabling logs at boot time and touchpad fix"
-    arch-chroot /mnt bash -c "sed -i "s/GRUB_CMDLINE_LINUX_DEFAULT=.*/GRUB_CMDLINE_LINUX_DEFAULT=\"i8042.nopnp\"/g" /etc/default/grub"
-
-    br && echo -e "Installing Paru [Aur Helper]"
-    arch-chroot /mnt bash -c "git clone --depth=1 https://aur.archlinux.org/paru-bin.git paru && exit"
-    arch-chroot /mnt bash -c "cd paru && sudo -u $USER1 makepkg -si && rm -rf /paru && exit"
-
-    br && echo -e "Editing pacman configuration files...\n"
-    # Get chromium pacman package
-    arch-chroot /mnt bash -c "curl -s 'https://download.opensuse.org/repositories/home:/ungoogled_chromium/Arch/x86_64/home_ungoogled_chromium_Arch.key' | pacman-key -a - && exit"
-    arch-chroot /mnt bash -c "echo -e '\n[home_ungoogled_chromium_Arch]\nSigLevel = Required TrustAll && exit"
-    arch-chroot /mnt bash -c "echo -e 'Server = https://download.opensuse.org/repositories/home:/ungoogled_chromium/Arch/$arch' | tee -a /etc/pacman.conf && exit"
-    # Enabling multilib in pacman
-    arch-chroot /mnt bash -c "sed -i '93s/#\[/\[/' /etc/pacman.conf && sed -i '94s/#I/I/' /etc/pacman.conf && exit"
-    # Tweaking pacman, uncomment options Color, TotalDownload and VerbosePkgList
-    arch-chroot /mnt bash -c "sed -i '34s/#C/C/' /etc/pacman.conf && sed -i '35s/#T/T/' /etc/pacman.conf && sed -i '37s/#V/V/' /etc/pacman.conf && sleep 1 && exit"
+    clear && echo -e "Entering Chroot...\n"
+    arch-chroot /mnt bash -c "curl -LO https://github.com/Jrchintu/CDN/raw/main/ARCH/chroot.sh && exit"
+    arch-chroot /mnt bash -c "sudo chmod -R 777 /chroot.sh && exit"
+    arch-chroot /mnt bash -c "bash /chroot.sh && exit"    
 
     cont
 }
