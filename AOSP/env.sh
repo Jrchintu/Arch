@@ -54,3 +54,5 @@ git clone https://github.com/Jrchintu/local_manifest --depth 1 -b "$LMBRANCH" .r
 # GIT
 git config --global user.email "chintu@gcp.com"
 git config --global user.name "Chintu"
+git config --global color.ui true
+git config --global core.editor nano
