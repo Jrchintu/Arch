@@ -86,7 +86,7 @@ partationing() {
             read -re -i "$HOME1" HOME1
         fi
         clear && br && tablegpt && lsblk && br
-        read -rep 'All Good, Shall i write table to disk ? [Y/N]: ' FSOK
+        read -rep 'All Good, shall i write table to disk ? [Y/N]: ' FSOK
         if [[ "$FSOK" = 'y' ]] || [[ "$FSOK" = 'Y' ]]; then
             # Make partation table {x:x:x}=={partation_no:starting_block:desired_size}
             sgdisk -Z "$pdrive"                                    # destroy existing mbr or gpt structures on disk
@@ -148,7 +148,7 @@ mounting() {
         *) ;;
 
         esac
-        mount -o "defaults,noatime" "$homep" /mnt/home
+        mount -o "defaults,noatime,nosuid,nodev" "$homep" /mnt/home
         ;;
     *) ;;
 
@@ -175,7 +175,7 @@ base() {
     pacstrap /mnt base linux-firmware linux-zen linux-zen-headers \
         nano sudo git xf86-video-intel intel-ucode mesa \
         base-devel ttf-liberation geany \
-        networkmanager ufw \
+        networkmanager \
         grub efibootmgr
     genfstab -U /mnt >>/mnt/etc/fstab
     cont
@@ -190,8 +190,7 @@ chrootstuff() {
     clear && echo -e "Entering Chroot...\n"
     arch-chroot /mnt bash -c "curl -LO https://github.com/Jrchintu/CDN/raw/main/ARCH/chroot.sh && exit"
     arch-chroot /mnt bash -c "sudo chmod -R 777 /chroot.sh && exit"
-    arch-chroot /mnt bash -c "bash /chroot.sh && exit"    
-
+    arch-chroot /mnt bash -c "bash /chroot.sh && exit"
     cont
 }
 
