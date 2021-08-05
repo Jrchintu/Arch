@@ -133,7 +133,7 @@ mounting() {
     *) ;;
 
     esac
-    mount -o "defaults,noatime" "$bootp" /mnt/boot/efi
+    mount -o "defaults,noatime,nosuid,nodev" "$bootp" /mnt/boot/efi
 
     clear && lsblk && br
     read -r -p "Do you want to use a seperate home partition? [y/N] " responsehome
