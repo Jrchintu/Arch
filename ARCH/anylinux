@@ -1,0 +1,28 @@
+#!/bin/env bash
+clear && LC_ALL=C && LANG=C
+
+# Check Internet
+if [ "$EUID" -ne 0 ]; then
+    echo "Please run as root" && exit
+    if : >/dev/tcp/8.8.8.8/53; then
+        echo ''
+    else echo 'offline Please connect...' && exit; fi
+fi
+
+# check distro type [debian,arch]
+DISTRO="$(awk '/^ID=/' /etc/*-release | awk -F'=' '{ print tolower($2) }')"
+if [ "$DISTRO" = 'arch' ]; then
+    which pacman && echo arch
+    pacman -Syu # Arch btw
+elif [ "$DISTRO" = 'debian' ]; then
+    which apt-get && echo debian || which apt && echo debian
+    apt update && apt upgrade && apt autoremove --purge
+else
+    echo 'I am retard now'
+fi
+
+# Git config
+
+git config --global user.name "Jrchintu"
+git config --global user.email "harrypetersun@outlook.com"
+git config --global color.ui auto
