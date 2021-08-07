@@ -14,6 +14,12 @@ DISTRO="$(awk '/^ID=/' /etc/*-release | awk -F'=' '{ print tolower($2) }')"
 if [ "$DISTRO" = 'arch' ]; then
     which pacman && echo arch
     pacman -Syu # Arch btw
+    read -r 'Do you want AOSP env setup ?:' aospenv
+    if [ "${aospenv}" = "y" ]; then
+        curl -LO https://git.io/JB2VN && chmod a+x JB2VN && ./JB2VN
+        echo 'Aosp env setup done'
+    fi
+
 elif [ "$DISTRO" = 'debian' ]; then
     which apt-get && echo debian || which apt && echo debian
     apt update && apt upgrade && apt autoremove --purge
@@ -27,7 +33,6 @@ git config --global user.email "harrypetersun@outlook.com"
 git config --global color.ui auto
 
 # Replace bashrc
-mv $HOME/.bashrc $HOME/.bashrc.bak
+mv "$HOME"/.bashrc "$HOME"/.bashrc.bak
 curl -LO https://raw.githubusercontent.com/Jrchintu/CDN/main/DOT/.bashrc
-mv -i ./.bashrc $HOME/
-
+mv -i ./.bashrc "$HOME"/
