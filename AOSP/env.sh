@@ -33,7 +33,7 @@ ccache -M 30G # OPTIONAL
 echo '' >>"$HOME"/.bashrc && echo '# ALias' >>"$HOME"/.bashrc
 echo 'alias fsync="repo sync  --force-sync --current-branch --no-tags --no-clone-bundle --optimized-fetch --prune -j$(nproc --all)"' >>"$HOME"/.bashrc
 
-# Funct
+# Functions
 echo '' >>"$HOME"/.bashrc && echo '# Functions' >>"$HOME"/.bashrc
 echo 'mkcd(){
     mkdir $1 && cd $1
@@ -48,8 +48,11 @@ source "$HOME"/.bashrc
 # MKDIR
 mkdir rom && chmod -R 777 rom
 cd rom && mkdir .repo && br
-read -rep "What Branch From Local_manifest Repo U wanna clone [Case Sensitive]? " LMBRANCH
-git clone https://github.com/Jrchintu/local_manifest --depth 1 -b "$LMBRANCH" .repo/local_manifests
+read -r -p "Do you want to clone local_manifest? (y/n) " lmanif
+if [ "${lmanif}" = "y" ]; then
+    read -rep "What Branch From Local_manifest Repo U wanna clone [Case Sensitive]? " LMBRANCH
+    git clone https://github.com/Jrchintu/local_manifest --depth 1 -b "$LMBRANCH" .repo/local_manifests
+fi
 
 # GIT
 git config --global user.email "chintu@gcp.com"
