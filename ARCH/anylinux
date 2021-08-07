@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 clear && LC_ALL=C && LANG=C
+WHOUSER="$(echo ${SUDO_USER:-${USER}})"
 
 # Check Internet
 if [ "$EUID" -ne 0 ]; then
@@ -10,9 +11,9 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 # Replace bashrc
-mv "$HOME"/.bashrc "$HOME"/.bashrc.bak
+mv "$WHOUSER"/.bashrc "$WHOUSER"/.bashrc.bak
 curl -LO https://raw.githubusercontent.com/Jrchintu/CDN/main/DOT/.bashrc
-mv -i ./.bashrc "$HOME"/
+mv -i ./.bashrc "$WHOUSER"/
 
 # check distro type [debian,arch]
 DISTRO="$(awk '/^ID=/' /etc/*-release | awk -F'=' '{ print tolower($2) }')"
