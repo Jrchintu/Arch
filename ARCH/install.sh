@@ -213,6 +213,7 @@ install-xfce() {
     pacstrap /mnt xfce4 xorg-server lightdm lightdm-gtk-greeter
     arch-chroot /mnt bash -c "systemctl enable lightdm && exit"
     arch-chroot /mnt bash -c "xfconf-query -c xfwm4 -p /general/use_compositing -s false && exit"
+    arch-chroot /mnt bash -c "sed -i 's|#greeter-hide-users=false|greeter-hide-users=true|g' /etc/lightdm/lightdm.conf && exit"
 }
 
 de() {
@@ -292,8 +293,8 @@ extrastuff() {
     read -r -p "Do you want to install Extra packages? [y/N] " extrayes
     case "$extrayes" in
     [yY][eE][sS] | [yY])
-        read -r -p "You can name some apps also [Ex byobu <seperate with space> tmux]: " xtraa
-        pacstrap /mnt neofetch cmatrix $xtraa
+        read -r -p "You can name some apps also [Ex. byobu <space> tmux <space> screen]: " xtraa
+        pacstrap /mnt neofetch cmatrix "$xtraa"
         ;;
     *) ;;
 
