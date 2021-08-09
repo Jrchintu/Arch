@@ -156,6 +156,7 @@ alias pactree='pactree --color'
 alias vdir='vdir --color=auto'
 alias watch='watch --color'
 alias mkdir='mkdir -pv'
+alias batt='x86_energy_perf_policy -v powersave'
 
 # GIT
 #echo "https://jrchintu:$password@github.com" > ~/.git-credentials
