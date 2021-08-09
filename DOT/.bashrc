@@ -10,9 +10,9 @@ export EDITOR='nano'
 
 # History Stuff
 export LESSHISTFILE=-
-export HISTFILESIZE=500000
-export HISTSIZE=100000
-export HISTCONTROL="erasedups:ignoreboth"
+export HISTSIZE=5000
+export HISTFILESIZE=5000
+export HISTCONTROL="erasedups:ignoreboth:ignorespace"
 
 # PS1
 clrreset='\e[0m'
@@ -26,7 +26,7 @@ export PS1="\[$clrwhite\]$USER@$HOSTNAME:\w \`if [ \$? = 0 ]; then echo -e '\[$c
 #env TERM=xterm-256color byobu
 
 # Shopt
-shopt -s cdspell autocd cmdhist
+shopt -s cdspell autocd cmdhist histappend
 
 # IX PASTER
 #     ix hello.txt              # paste file (name/ext will be set).
@@ -167,3 +167,9 @@ alias ga="git add -A"
 alias gcs="git commit -s"
 alias gp="git push"
 alias gcp="git add -A && git commit -s && git push"
+
+# Keyboard mods
+xmodmap -e 'keycode 98=' # Disable Up key
+
+# Protects against https downgrade attacks
+alias curl="curl -sI --tlsv1.2 --proto =https"
