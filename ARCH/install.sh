@@ -183,10 +183,6 @@ base() {
 
 chrootstuff() {
     br && echo 'Chrooting Into Installed Archlinux'
-    read -rep "Enter the username: " USER1
-    read -rep "Enter the hostname: " HNAME
-    read -rep "Enter Region/Zone Eg.Asia/Kolkata:" RNAME
-
     clear && echo -e "Entering Chroot...\n"
     arch-chroot /mnt bash -c "curl -LO https://github.com/Jrchintu/CDN/raw/main/ARCH/chroot.sh && exit"
     arch-chroot /mnt bash -c "sudo chmod -R 777 /chroot.sh && exit"
