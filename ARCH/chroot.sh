@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+# Q/A
+read -rep "Enter the username: " USER1
+read -rep "Enter the hostname: " HNAME
+read -rep "Enter Region/Zone Eg.Asia/Kolkata:" RNAME
+
 #TIME
 ln -sf /usr/share/zoneinfo/"$RNAME" /etc/localtime && hwclock --systohc
 sed -i 's/#en_US.UTF-8/en_US.UTF-8/' /etc/locale.gen && locale-gen && echo 'LANG=en_US.UTF-8' >/etc/locale.conf
