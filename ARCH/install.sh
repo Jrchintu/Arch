@@ -55,8 +55,8 @@ updatestuff() {
     br && read -r -p "Do you want to update pacman source? [y/N] " resp
     case "$resp" in
     [yY][eE][sS] | [yY])
-        echo "Setting time...."
-        timedatectl set-local-rtc 1 --adjust-system-clock
+        #echo "Setting time...."
+        #timedatectl set-local-rtc 1 --adjust-system-clock
         echo "Please wait updating source...."
         pacman -Syy --noconfirm
         ;;
