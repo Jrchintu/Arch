@@ -315,7 +315,7 @@ step-installation() {
     clear && br
     echo "These Steps Are Available For Installion"
     echo ""
-    echo "1.  Set Time And Update Pacman Source"
+    echo "1.  Update Pacman Source"
     echo "2.  Create/Edit Partation Table"
     echo "3.  Mount Partations"
     echo "4.  Install Base ArchLinux"
