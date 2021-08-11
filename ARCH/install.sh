@@ -308,6 +308,7 @@ full-installation() {
     browser
     invidia
     extrastuff
+    umount -R /mnt
     echo "Installation complete. Reboot you lazy bastard."
 }
 
@@ -333,6 +334,7 @@ step-installation() {
         ${array[$stepno]}
         stepno=$((stepno + 1))
     done
+    umount -R /mnt
 }
 
 main() {
