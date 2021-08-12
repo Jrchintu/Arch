@@ -120,7 +120,7 @@ mounting() {
     clear && lsblk && br
     read -r -p "Which is your root partition [Eg. /dev/sda3]? " rootp
     mkfs.ext4 "$rootp"
-    mount -o "defaults,noatime" "$rootp" /mnt
+    mount -o "defaults,noatime,commit=60" "$rootp" /mnt
     mkdir -pv /mnt/{boot/efi,home}
 
     clear && lsblk && br
