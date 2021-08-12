@@ -1,0 +1,17 @@
+[user]
+	email = harrypetersun@outlook.com
+	name = Jr Chintu
+[push]
+    default = simple
+[alias]
+    log = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+	graph = log --graph --pretty=format:'%C(bold blue)%h%Creset - %C(yellow)(%ar)%C(reset) %s %C(white)<%an>%Creset %C(reverse yellow)%d%Creset' --abbrev-commit
+[help]
+	autocorrect = 1
+[filter "lfs"]
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+	clean = git-lfs clean -- %f
+[core]
+	editor = nano
