@@ -53,3 +53,8 @@ ufw enable
 rm -rf /etc/profile.d/*alias* /etc/profile.d/*ps1*
 curl -L https://github.com/Jrchintu/CDN/raw/main/DOT/.bashrc -o /etc/profile.d/.bashrc
 chmod a+x /etc/profile.d/*
+
+# Install intel related stuff
+pacman -S --noconfirm --needed \
+libva-intel-driver libvdpau-va-gl lib32-vulkan-intel vulkan-intel intel-ucode \
+lib32-vulkan-mesa-layers xf86-video-intel libva-utils intel-media-driver
