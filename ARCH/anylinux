@@ -37,3 +37,8 @@ fi
 git config --global user.name "Jrchintu"
 git config --global user.email "harrypetersun@outlook.com"
 git config --global color.ui auto
+
+# Redshift
+if ! command -v redshift &> /dev/null; then
+    redshift -l $(curl -s "https://location.services.mozilla.com/v1/geolocate?key=geoclue" | awk 'OFS=":" {print $3,$5}' | tr -d ',}') -t 5700:3600 -g 0.8 -m randr -v
+fi
