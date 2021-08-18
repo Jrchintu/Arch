@@ -24,15 +24,14 @@ DISTRO="$(awk '/^ID=/' /etc/*-release | awk -F'=' '{ print tolower($2) }')"
 if [ "$DISTRO" = 'arch' ]; then
     which pacman && echo arch
     pacman -Syu # Arch btw
+elif [ "$DISTRO" = 'debian' ]; then
+    which apt-get && echo debian || which apt && echo debian
+    apt update && apt upgrade && apt autoremove --purge
     read -r 'Do you want AOSP env setup ?:' aospenv
     if [ "${aospenv}" = "y" ]; then
         curl -LO https://git.io/JB2VN && chmod a+x JB2VN && ./JB2VN
         echo 'Aosp env setup done'
     fi
-
-elif [ "$DISTRO" = 'debian' ]; then
-    which apt-get && echo debian || which apt && echo debian
-    apt update && apt upgrade && apt autoremove --purge
 else
     echo 'I am retard now'
 fi
