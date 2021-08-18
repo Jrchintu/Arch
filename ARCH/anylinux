@@ -11,8 +11,8 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 # IMP Packages
-sudo apt install git
-sudo apt remove google-cloud-sdk --purge
+sudo apt install git -y
+sudo apt remove google-cloud-sdk --purge -y
 
 # Replace bashrc
 mv /home/"$WHOUSER"/.bashrc /home/"$WHOUSER"/.bashrc.bak
