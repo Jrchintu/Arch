@@ -105,6 +105,12 @@ man() {
         LESS_TERMCAP_us="$(printf "\e[1;32m")" \
         man "$@"
 }
+br() {
+    for ((i = 1; i <= $(tput cols); i++)); do echo -n -; done
+}
+mkcd(){
+    mkdir $1 && cd $1
+}
 up() {
     for LOOP in $1; do
         curl -T "$LOOP" https://transfer.sh/"$(basename "$LOOP")"
