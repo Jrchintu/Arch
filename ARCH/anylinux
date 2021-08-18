@@ -30,7 +30,7 @@ elif [ "$DISTRO" = 'debian' ]; then
     # ENV SETUP
     sudo apt update -y && sudo apt upgrade -y
     sudo add-apt-repository ppa:openjdk-r/ppa -y
-    sudo apt install git-core p7zip-full aria2 rclone pigz -y
+    sudo apt install git-core p7zip-full aria2 rclone pigz libncurses5 libncurses5-dev -y
     apt remove google-cloud-sdk --purge -y
     sudo apt autoremove --purge -y
 
