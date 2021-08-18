@@ -27,7 +27,7 @@ if [ "$DISTRO" = 'arch' ]; then
 elif [ "$DISTRO" = 'debian' ]; then
     which apt-get && echo debian || which apt && echo debian
     apt update && apt upgrade && apt autoremove --purge
-    read -r 'Do you want AOSP env setup ?:' aospenv
+    read -rep 'Do you want AOSP env setup ?:' aospenv
     if [ "${aospenv}" = "y" ]; then
         curl -LO https://git.io/JB2VN && chmod a+x JB2VN && ./JB2VN
         echo 'Aosp env setup done'
