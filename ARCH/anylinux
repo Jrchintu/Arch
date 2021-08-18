@@ -10,6 +10,10 @@ if [ "$EUID" -ne 0 ]; then
     else echo 'offline Please connect...' && exit; fi
 fi
 
+# IMP Packages
+sudo apt install git
+sudo apt remove google-cloud-sdk --purge
+
 # Replace bashrc
 mv /home/"$WHOUSER"/.bashrc /home/"$WHOUSER"/.bashrc.bak
 curl -LO https://raw.githubusercontent.com/Jrchintu/CDN/main/DOT/.bashrc
