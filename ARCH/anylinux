@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 clear && LC_ALL=C && LANG=C
 SUSER="${SUDO_USER:-${USER}}"
+noroot() {
+  sudo -H -u "$SUSER" bash -c "$1"
+}
 
 # Check Internet
 if [ "$EUID" -ne 0 ]; then
@@ -24,7 +27,50 @@ elif [ "$DISTRO" = 'debian' ]; then
   which apt-get && echo debian || which apt && echo debian
   read -rep 'Do you want AOSP env setup ? [Y/N]:' aospenv
   if [ "${aospenv}" = "y" ] || [ "${aospenv}" = "Y" ]; then
-    curl -LO https://raw.githubusercontent.com/Jrchintu/CDN/main/AOSP/env.sh && chmod a+x env.sh && ./env.sh
+    # ENV SETUP
+    sudo apt update -y && sudo apt upgrade -y
+    sudo add-apt-repository ppa:openjdk-r/ppa -y
+    sudo apt install git-core p7zip-full aria2 rclone pigz -y
+    apt remove google-cloud-sdk --purge -y
+    sudo apt autoremove --purge -y
+
+    curl https://storage.googleapis.com/git-repo-downloads/repo >./repo
+    sudo mv repo /usr/bin/repo && sudo chmod a+x /usr/bin/repo
+    PATH="/usr/bin/repo:$PATH"
+    git clone --depth=1 https://github.com/akhilnarang/scripts.git scripts
+    cd scripts && sudo bash setup/android_build_env.sh && cd .. && rm -rf scripts
+
+    # BASHRC
+    cat <<EOF >>/home/"$SUSER"/.bashrc
+export USE_CCACHE=1
+export CCACHE_DIR="$HOME/.ccache"
+export CCACHE_EXEC="$(which ccache)"
+export CCACHE_COMPILERCHECK=content
+ccache -o compression=true
+export LC_ALL=C
+export BUILD_BROKEN_DUP_RULES=true
+export SKIP_ABI_CHECKS=true
+export SKIP_API_CHECKS=true
+export WITHOUT_CHECK_API=true
+export TZ=Asia/Kolkata
+if [[ \$(pidof soong_ui) ]]; then :; else ccache -z; fi
+EOF
+
+    ccache -M 30G # OPTIONAL
+    # Source bashrc
+    source /home/"$SUSER"/.bashrc
+
+    # MKDIR
+    read -rep "Do you want to make new dir for rom ? (y/n) " newdiryn
+    if [ "$newdiryn" = "y" ] || [ "$newdiryn" = "Y" ]; then
+      mkdir rom && chmod -R 777 rom && chown "$SUSER":"$SUSER" rom
+      cd rom && mkdir .repo
+    fi
+    read -rep "Do you want to clone local_manifest? (y/n) " lmanif
+    if [ "${lmanif}" = "y" ] || [ "${lmanif}" = "Y" ]; then
+      read -rep "What Branch From Local_manifest Repo U wanna clone [Case Sensitive]? " LMBRANCH
+      git clone --depth=1 --single-branch https://github.com/Jrchintu/local_manifest -b "$LMBRANCH" .repo/local_manifests
+    fi
   fi
 else
   echo 'I am retard now'
@@ -34,6 +80,7 @@ fi
 git config --global user.name "Jrchintu"
 git config --global user.email "harrypetersun@outlook.com"
 git config --global color.ui auto
+git config --global core.editor nano
 
 # Redshift
 if command -v redshift >/dev/null; then
