@@ -181,3 +181,4 @@ xmodmap -e 'keycode 98=' # Disable Up key
 # Protects against https downgrade attacks
 alias curls='curl -s --tlsv1.3 --proto =https'
 alias fdpi='sudo /home/p/Git/DPITunnel-cli/DPITunnel-cli-exec -use-doh -doh-server https://dns.google/dns-query -split-at-sni -ca-bundle-path /home/p/Git/DPITunnel-cli/ca.bundle -desync-attacks split -port 6969 -daemon'
+alias fsync="repo sync  --force-sync --current-branch --no-tags --no-clone-bundle --optimized-fetch --prune -j$(nproc --all)"
