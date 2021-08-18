@@ -173,4 +173,5 @@ alias gcp="git add -A && git commit -s && git push"
 xmodmap -e 'keycode 98=' # Disable Up key
 
 # Protects against https downgrade attacks
-alias curl="curl -sI --tlsv1.2 --proto =https"
+alias curls='curl -s --tlsv1.3 --proto =https'
+alias fdpi='sudo /home/p/Git/DPITunnel-cli/DPITunnel-cli-exec -use-doh -doh-server https://dns.google/dns-query -split-at-sni -ca-bundle-path /home/p/Git/DPITunnel-cli/ca.bundle -desync-attacks split -port 6969 -daemon'
