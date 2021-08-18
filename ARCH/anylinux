@@ -4,15 +4,11 @@ WHOUSER="${SUDO_USER:-${USER}}"
 
 # Check Internet
 if [ "$EUID" -ne 0 ]; then
-    echo "Please run as root" && exit
-    if : >/dev/tcp/8.8.8.8/53; then
-        echo ''
-    else echo 'offline Please connect...' && exit; fi
+  echo "Please run as root" && exit
+  if : >/dev/tcp/8.8.8.8/53; then
+    echo ''
+  else echo 'offline Please connect...' && exit; fi
 fi
-
-# IMP Packages
-sudo apt install git -y
-sudo apt remove google-cloud-sdk --purge -y
 
 # Replace bashrc
 mv /home/"$WHOUSER"/.bashrc /home/"$WHOUSER"/.bashrc.bak
@@ -22,18 +18,16 @@ mv -i ./.bashrc /home/"$WHOUSER"/
 # check distro type [debian,arch]
 DISTRO="$(awk '/^ID=/' /etc/*-release | awk -F'=' '{ print tolower($2) }')"
 if [ "$DISTRO" = 'arch' ]; then
-    which pacman && echo arch
-    pacman -Syu # Arch btw
+  which pacman && echo arch
+  pacman -Syu # Arch btw
 elif [ "$DISTRO" = 'debian' ]; then
-    which apt-get && echo debian || which apt && echo debian
-    apt update && apt upgrade && apt autoremove --purge
-    read -rep 'Do you want AOSP env setup ? [Y/N]:' aospenv
-    if [ "${aospenv}" = "y" ] || [ "${aospenv}" = "Y" ]; then
-        curl -LO https://git.io/JB2VN && chmod a+x JB2VN && ./JB2VN
-        echo 'Aosp env setup done'
-    fi
+  which apt-get && echo debian || which apt && echo debian
+  read -rep 'Do you want AOSP env setup ? [Y/N]:' aospenv
+  if [ "${aospenv}" = "y" ] || [ "${aospenv}" = "Y" ]; then
+    curl -LO https://raw.githubusercontent.com/Jrchintu/CDN/main/AOSP/env.sh && chmod a+x env.sh && ./env.sh
+  fi
 else
-    echo 'I am retard now'
+  echo 'I am retard now'
 fi
 
 # Git config
@@ -42,7 +36,6 @@ git config --global user.email "harrypetersun@outlook.com"
 git config --global color.ui auto
 
 # Redshift
-if command -v redshift > /dev/null
-then
-    redshift -l "$(curl -s "https://location.services.mozilla.com/v1/geolocate?key=geoclue" | awk 'OFS=":" {print $3,$5}' | tr -d ',}')" -t 5700:3600 -g 0.8 -m randr -v
+if command -v redshift >/dev/null; then
+  redshift -l "$(curl -s "https://location.services.mozilla.com/v1/geolocate?key=geoclue" | awk 'OFS=":" {print $3,$5}' | tr -d ',}')" -t 5700:3600 -g 0.8 -m randr -v
 fi
