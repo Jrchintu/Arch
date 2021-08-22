@@ -109,7 +109,7 @@ br() {
     for ((i = 1; i <= $(tput cols); i++)); do echo -n -; done
 }
 mkcd(){
-    mkdir $1 && cd $1
+    mkdir "$1" && cd "$1" || exit
 }
 up() {
     for LOOP in $1; do
@@ -174,11 +174,12 @@ alias ga="git add -A"
 alias gcs="git commit -s"
 alias gp="git push"
 alias gcp="git add -A && git commit -s && git push"
+alias curls='curl -s --tlsv1.3 --proto =https'
+alias fdpi='sudo /home/p/Git/DPITunnel-cli/DPITunnel-cli-exec -use-doh -doh-server https://dns.google/dns-query -split-at-sni -ca-bundle-path /home/p/Git/DPITunnel-cli/ca.bundle -desync-attacks split -port 6969 -daemon'
+alias fsync='repo sync  --force-sync --current-branch --no-tags --no-clone-bundle --optimized-fetch --prune -j$(nproc --all)'
+alias dpion='sudo /home/p/Git/DPITunnel-cli/DPITunnel-cli-exec -use-doh -doh-server https://dns.google/dns-query -split-at-sni -ca-bundle-path /home/p/Git/DPITunnel-cli/ca.bundle -desync-attacks split -port 6969 -daemon'
+alias dpioff='sudo killall DPITunnel-cli'
+alias ytflac='youtube-dl -x -k --audio-format flac -f "bestaudio/best" -ciw -o "%(title)s.%(ext)s" -v --extract-audio --audio-quality 0'
 
 # Keyboard mods
 xmodmap -e 'keycode 98=' # Disable Up key
-
-# Protects against https downgrade attacks
-alias curls='curl -s --tlsv1.3 --proto =https'
-alias fdpi='sudo /home/p/Git/DPITunnel-cli/DPITunnel-cli-exec -use-doh -doh-server https://dns.google/dns-query -split-at-sni -ca-bundle-path /home/p/Git/DPITunnel-cli/ca.bundle -desync-attacks split -port 6969 -daemon'
-alias fsync="repo sync  --force-sync --current-branch --no-tags --no-clone-bundle --optimized-fetch --prune -j$(nproc --all)"
