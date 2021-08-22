@@ -29,10 +29,11 @@ export CCACHE_COMPILERCHECK=content
 ccache -o compression=true
 export LC_ALL=C
 export BUILD_BROKEN_DUP_RULES=true
+export TZ=Asia/Kolkata
+export BUILD_NUMBER=$(date +%d-%m-%Y-%I%M)
 export SKIP_ABI_CHECKS=true
 export SKIP_API_CHECKS=true
 export WITHOUT_CHECK_API=true
-export TZ=Asia/Kolkata
 if [[ \$(pidof soong_ui) ]]; then :; else ccache -z; fi
 EOF
 
