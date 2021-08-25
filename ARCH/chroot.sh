@@ -55,4 +55,4 @@ curl -L https://github.com/Jrchintu/CDN/raw/main/DOT/.bashrc -o /etc/profile.d/.
 chmod a+x /etc/profile.d/*
 
 # Install intel related stuff
-pacman -S --noconfirm --needed libva-utils intel-ucode
+pacman -S --noconfirm --needed libva libva-utils intel-ucode
