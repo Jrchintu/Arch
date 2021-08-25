@@ -173,10 +173,7 @@ base() {
     echo "Starting installation of packages in selected root drive..."
     sleep 1
     pacstrap /mnt base linux-firmware linux-zen linux-zen-headers \
-        nano sudo git xf86-video-intel intel-ucode mesa \
-        base-devel ttf-liberation geany \
-        networkmanager \
-        grub efibootmgr
+        nano sudo git base-devel networkmanager grub efibootmgr
     genfstab -U /mnt >>/mnt/etc/fstab
     cont
 }
@@ -290,7 +287,7 @@ extrastuff() {
     case "$extrayes" in
     [yY][eE][sS] | [yY])
         read -r -p "You can name some apps also [Ex. byobu <space> tmux <space> screen]: " xtraa
-        pacstrap /mnt neofetch cmatrix "$xtraa"
+        pacstrap /mnt neofetch "$xtraa"
         ;;
     *) ;;
 
