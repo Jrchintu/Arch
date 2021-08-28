@@ -205,7 +205,6 @@ install-kde() {
 install-xfce() {
     pacstrap /mnt xfce4 xorg-server lightdm lightdm-gtk-greeter
     arch-chroot /mnt bash -c "systemctl enable lightdm && exit"
-    arch-chroot /mnt bash -c "xfconf-query -c xfwm4 -p /general/use_compositing -s false && exit"
     arch-chroot /mnt bash -c "sed -i 's|#greeter-hide-users=false|greeter-hide-users=true|g' /etc/lightdm/lightdm.conf && exit"
 }
 
