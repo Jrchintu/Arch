@@ -56,3 +56,11 @@ chmod a+x /etc/profile.d/*
 
 # Install intel related stuff
 pacman -S --noconfirm --needed libva libva-utils intel-ucode
+
+# Xfce4 configs/tweaks
+xfconf-query -c xfwm4 -p /general/use_compositing -s false
+xfconf-query -c xfce4-session -p /shutdown/LockScreen -s true
+xfconf-query -c xfce4-session -p /general/SaveOnExit -n -t bool -s false
+xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/lock-screen-suspend-hibernate -s true
+xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/logind-handle-suspend-key -n -t bool -s true
+rm ~/.cache/sessions/* && chmod 500 ~/.cache/sessions
