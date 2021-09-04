@@ -31,8 +31,8 @@ elif [ "$DISTRO" = 'debian' ]; then
         sudo apt update -y && sudo apt upgrade -y
         sudo add-apt-repository ppa:openjdk-r/ppa -y
         sudo apt install git-core p7zip-full aria2 rclone pigz bc bison build-essential \
-            curl flex g++-multilib gcc-multilib git gnupg gperf imagemagick libncurses5 lib32ncurses5-dev \
-            lib32readline-dev lib32z1-dev liblz4-tool libncurses5-dev libsdl1.2-dev \
+            curl flex g++-multilib gcc-multilib git gnupg gperf imagemagick libncurses5 \
+            lib32readline-dev lib32z1-dev liblz4-tool libsdl1.2-dev \
             libwxgtk3.0-dev libxml2 libxml2-utils lzop pngcrush schedtool squashfs-tools \
             xsltproc zip zlib1g-dev unzip openjdk-8-jdk libssl-dev python ccache libtinfo5
         sudo apt autoremove --purge -y
