@@ -7,7 +7,8 @@ LANG=C
 # Some Default Variables
 export BOOT1="+512M"
 export SWAP1="+6G"
-export ROOT1="+60G"
+export ROOT1="+50G"
+export BIOS1="+1M"
 export HOME1="0" # Remaining space
 
 ascii() {
@@ -28,14 +29,14 @@ br() {
 }
 
 tablegpt() {
-    echo '' && echo """$pdrive""1 [efi] = $BOOT1"
-    echo """$pdrive""2 [swap] = $SWAP1"
-    echo """$pdrive""3 [root] = $ROOT1"
-    echo """$pdrive""4 [home] = $HOME1 [0=All remaining space]" && echo ''
+    echo '' && echo """$DRIVE2EDIT""1 [efi] = $BOOT1"
+    echo """$DRIVE2EDIT""2 [swap] = $SWAP1"
+    echo """$DRIVE2EDIT""3 [root] = $ROOT1"
+    echo """$DRIVE2EDIT""4 [home] = $HOME1 [0=All remaining space]" && echo ''
 }
 
 cont() {
-    clear && read -rep "[SUCCESS] Continue to next step? [Y/n] " continue
+    clear && read -rep "[SUCCESS] Continue to next step? [Y/N] " continue
     case $continue in
     [Nn][oO] | [nN])
         exit
@@ -50,25 +51,15 @@ updatestuff() {
         echo "Please run as root" && exit
         if : >/dev/tcp/8.8.8.8/53; then
             echo ''
-        else echo 'offline Please connect...' && exit; fi
+        else echo 'offline Please connect...[Use iwctl command]' && exit; fi
     fi
-    br && read -r -p "Do you want to update pacman source? [y/N] " resp
-    case "$resp" in
-    [yY][eE][sS] | [yY])
-        #echo "Setting time...."
-        #timedatectl set-local-rtc 1 --adjust-system-clock
-        echo "Please wait updating source...."
-        pacman -Syy --noconfirm
-        ;;
-    *) ;;
-    esac
-    cont
+    pacman -Syyy --noconfirm
 }
 
 partationing() {
     read -rep 'Type Y for new Partation table or N for Editing old table with cgdisk: ' oldnew
     if [[ "$oldnew" = 'y' ]] || [[ "$oldnew" = 'Y' ]]; then
-        read -rep "Which drive you want to partition (example /dev/sda)? " pdrive
+        read -rep "Which drive you want to partition (example /dev/sda)? " DRIVE2EDIT
         clear && br && echo "We will create and format the partitions as follows:" && tablegpt && br
         read -rep 'Want to edit ? [Y/N]: ' FSOK
         if [[ "$FSOK" = 'y' ]] || [[ "$FSOK" = 'Y' ]]; then
@@ -82,6 +73,9 @@ partationing() {
             echo "Enter Size For   /Root    [Default= $ROOT1][Use 0 For All Free Space & G=Gb;M=Mb & ctrl+c For Default]"
             read -re -i "$ROOT1" ROOT1
             clear
+            echo "Enter Size For   /Bios    [Default= $ROOT1][Use 0 For All Free Space & G=Gb;M=Mb & ctrl+c For Default]"
+            read -re -i "$BIOS1" BIOS1
+            clear
             echo "Enter Size For   /Home    [Default= $HOME1][Use 0 For All Free Space & G=Gb;M=Mb & ctrl+c For Default]"
             read -re -i "$HOME1" HOME1
         fi
@@ -89,29 +83,30 @@ partationing() {
         read -rep 'All Good, shall i write table to disk ? [Y/N]: ' FSOK
         if [[ "$FSOK" = 'y' ]] || [[ "$FSOK" = 'Y' ]]; then
             # Make partation table {x:x:x}=={partation_no:starting_block:desired_size}
-            sgdisk -Z "$pdrive"                                    # destroy existing mbr or gpt structures on disk
-            sgdisk -a 2048 -o                                      # new gpt disk 2048 alignment
-            sgdisk -n 1:0:"$ROOT1" -t 1:8300 -c 1:"root" "$pdrive" # partition 1 (ROOT), default start, 60GB
-            sgdisk -n 3:0:"$SWAP1" -t 3:8200 -c 3:"swap" "$pdrive" # partition 3 (SWAP), default start, 6GB
-            sgdisk -n 4:0:"$BOOT1" -t 4:ef00 -c 4:"boot" "$pdrive" # partition 4 (BOOT), default start, 512MB
-            sgdisk -n 2:0:"$HOME1" -t 2:8300 -c 2:"home" "$pdrive" # partition 2 (HOME), default start, Remaning space
+            sgdisk -Z "$DRIVE2EDIT"                                    # Destroy existing mbr or gpt structures on disk
+            sgdisk -a 2048 -o                                          # New gpt disk 2048 alignment
+            sgdisk -n 1:0:"$ROOT1" -t 1:8300 -c 1:"ROOT" "$DRIVE2EDIT" # Part 1 (ROOT), default start, 60GB
+            sgdisk -n 3:0:"$SWAP1" -t 3:8200 -c 3:"SWAP" "$DRIVE2EDIT" # Part 3 (SWAP), default start, 6GB
+            sgdisk -n 4:0:"$BOOT1" -t 4:ef00 -c 4:"BOOT" "$DRIVE2EDIT" # Part 4 (BOOT), default start, 512MB
+            sgdisk -n 5:0:"$BIOS1" -t 5:ef02 -c 5:"BIOS" "$DRIVE2EDIT" # Part 5 (BIOS), default start, 1MB
+            sgdisk -n 2:0:"$HOME1" -t 2:8300 -c 2:"HOME" "$DRIVE2EDIT" # Part 2 (HOME), default start, Remaning space
 
             # Inform the OS of partition table changes
-            sgdisk -p "$pdrive"
+            sgdisk -p "$DRIVE2EDIT"
             clear && br && echo "Press any key to write partation table to disk or ctrl+c to exit" && br
             read -r tmpvar
-            partprobe "$pdrive"
+            partprobe "$DRIVE2EDIT"
         else
             clear && lsblk && br
-            read -rep "Which drive you want to partition [Exit with ctrl+c] (example /dev/sda) ? " pdrive
+            read -rep "Which drive you want to partition [Exit with ctrl+c] (example /dev/sda) ? " DRIVE2EDIT
             # Using cgdisk for GPT, for mbr use cfdisk
-            cgdisk "$pdrive"
+            cgdisk "$DRIVE2EDIT"
         fi
     else
         clear && lsblk && br
-        read -rep "Which drive you want to partition [Exit with ctrl+c] (example /dev/sda) ? " pdrive
+        read -rep "Which drive you want to partition [Exit with ctrl+c] (example /dev/sda) ? " DRIVE2EDIT
         # Using cgdisk for GPT, for mbr use cfdisk
-        cgdisk "$pdrive"
+        cgdisk "$DRIVE2EDIT"
     fi
     cont
 }
@@ -169,11 +164,9 @@ mounting() {
 }
 
 base() {
-    br
-    echo "Starting installation of packages in selected root drive..."
-    sleep 1
+    br && echo "Starting installation of packages in selected root drive..."
     pacstrap /mnt base linux-firmware linux-zen linux-zen-headers \
-        nano sudo git base-devel networkmanager grub efibootmgr
+	base-devel grub efibootmgr nano sudo git
     genfstab -U /mnt >>/mnt/etc/fstab
     cont
 }
@@ -200,12 +193,13 @@ install-deepin() {
 install-kde() {
     pacstrap /mnt xorg-server plasma sddm
     arch-chroot /mnt bash -c "systemctl enable sddm && exit"
-    pacstrap /mnt ark dolphin ffmpegthumbs gwenview kaccounts-integration kate kdialog kio-extras konsole ksystemlog okular
 }
 install-xfce() {
     pacstrap /mnt xfce4 xorg-server lightdm lightdm-gtk-greeter
+    pacstrap /mnt gtk-engine-murrine gtk-engines xfce4-screenshooter xfce4-power-manager \
+    xfce4-whiskermenu-plugin xfce4-pulseaudio-plugin xfce4-battery-plugin network-manager-applet \
+    gvfs gvfs-mtp mtpfs thunar-media-tags-plugin
     arch-chroot /mnt bash -c "systemctl enable lightdm && exit"
-    arch-chroot /mnt bash -c "sed -i 's|#greeter-hide-users=false|greeter-hide-users=true|g' /etc/lightdm/lightdm.conf && exit"
 }
 
 de() {
@@ -250,7 +244,7 @@ browser() {
     read -r -p "Install Ungoogled-Chromium? [y/N] " chrom
     case "$chrom" in
     [yY][eE][sS] | [yY])
-        arch-chroot /mnt bash -c "pacman -Sy ungoogled-chromium && exit"
+        arch-chroot /mnt bash -c "pacman -Sy ungoogled-chromium gnome-keyring && exit"
         ;;
     *) ;;
 
@@ -267,22 +261,9 @@ browser() {
     cont
 }
 
-invidia() {
-    br
-    read -r -p "Do you want proprietary nvidia-390xx-dkms drivers? [y/N] " grapigs
-    case "$grapigs" in
-    [yY][eE][sS] | [yY])
-        arch-chroot /mnt bash -c "sudo -u $USER1 paru -S --noconfirm nvidia-390xx-dkms nvidia-390xx-utils"
-        ;;
-    *) ;;
-
-    esac
-    cont
-}
-
 extrastuff() {
     br
-    read -r -p "Do you want to install Extra packages? [y/N] " extrayes
+    read -r -p "Do you want to install any Extra packages? [y/N] " extrayes
     case "$extrayes" in
     [yY][eE][sS] | [yY])
         read -r -p "You can name some apps also [Ex. byobu <space> tmux <space> screen]: " xtraa
@@ -302,7 +283,6 @@ full-installation() {
     de
     installgrub
     browser
-    invidia
     extrastuff
     umount -R /mnt
     echo "Installation complete. Reboot you lazy bastard."
@@ -320,11 +300,10 @@ step-installation() {
     echo "6.  Install DesktopEnv"
     echo "7.  Install Grub"
     echo "8.  Install Browser"
-    echo "9.  Install Nvidia Graphic Drivers"
-    echo "10. Extra package stuff"
+    echo "9.  Extra package stuff"
     br && read -rep "Enter the number of step[1-11]: " stepno && clear
 
-    array=(updatestuff partationing mounting base chrootstuff de installgrub browser invidia extrastuff)
+    array=(updatestuff partationing mounting base chrootstuff de installgrub browser extrastuff)
     stepno=$((stepno - 1))
     while [ $stepno -lt ${#array[*]} ]; do
         ${array[$stepno]}
