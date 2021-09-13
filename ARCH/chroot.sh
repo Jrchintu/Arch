@@ -122,14 +122,13 @@ systemctl enable --now bluetooth
 
 # Pipewire
 pacman -S --needed --noconfirm pipewire pipewire-pulse pipewire-media-session pavucontrol
-systemctl --now pipewire pipewire-pulse pipewire-media-session
+systemctl --now pipewire-pulse pipewire-media-session
 
 # XFCE Tweaks/WIP
 #sed -i 's|#lock-memory=true|lock-memory=true|g' /etc/lightdm/lightdm.conf
 #sed -i 's|#greeter-hide-users=false|greeter-hide-users=true|g' /etc/lightdm/lightdm.conf
 #sed -i 's|#cache-directory=/var/cache/lightdm|cache-directory=/var/cache/lightdm|g' /etc/lightdm/lightdm.conf
 
-# Fixup Systemd
-systemctl daemon-reload
-systemctl --now disable avahi-daemon systemd-resolved &>/dev/null
-systemctl mask systemd-resolved avahi-daemon
+# Disable avahi
+systemctl --now disable avahi-daemon
+systemctl mask avahi-daemon
