@@ -252,23 +252,9 @@ extrastuff() {
     esac
 }
 
-full-installation() {
-    updatestuff
-    partationing
-    mounting
-    base
-    chrootstuff
-    de
-    installgrub
-    browser
-    extrastuff
-    umount -far
-    echo "Installation complete. Reboot you lazy bastard."
-}
-
-step-installation() {
+main() {
     clear && br
-    echo "These Steps Are Available For Installion"
+    echo "These Steps Are Available For Installion Usually choose 1."
     echo ""
     echo "1.  Update Pacman"
     echo "2.  Create/Edit Partation Table"
@@ -288,20 +274,6 @@ step-installation() {
         stepno=$((stepno + 1))
     done
     umount -far
-}
-
-main() {
-    br && echo "1. Start From Specific Step [Recommended]"
-    echo "2. Start Full Auto Installer [Use Only if u Know what it do]" && br
-    read -r -p "What would you like to do? [1/2] " what
-    case "$what" in
-    2)
-        full-installation
-        ;;
-    *)
-        step-installation
-        ;;
-    esac
 }
 
 clear
