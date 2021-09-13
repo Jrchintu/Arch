@@ -50,9 +50,9 @@ fi
 read -rep 'Do you want to install paru [Aur helper][Y/N]: ' PARUYN
 if [ "$PARUYN" = 'Y' ] || [ "$PARUYN" = 'y' ]; then
 if [ -z "$USER1" ]; then read -rep 'Tell username you setted back [This is due to error last time] : ' USER1; else true; fi
--H -u "$USER1" bash -c 'if [[ -f "/home/$USER1/paru" ]]; then true; else git clone --depth=1 https://aur.archlinux.org/paru-bin.git /home/$USER1/paru; fi'
--H -u "$USER1" bash -c 'chmod -R 777 /home/$USER1/paru && cd /home/$USER1/paru && makepkg -s -i -c --noconfirm'
--H -u "$USER1" bash -c 'rm -rf /home/$USER1/paru'
+sudo -H -u "$USER1" bash -c 'if [[ -f "/home/$USER1/paru" ]]; then true; else git clone --depth=1 https://aur.archlinux.org/paru-bin.git /home/$USER1/paru; fi'
+sudo -H -u "$USER1" bash -c 'chmod -R 777 /home/$USER1/paru && cd /home/$USER1/paru && makepkg -s -i -c --noconfirm'
+sudo -H -u "$USER1" bash -c 'rm -rf /home/$USER1/paru'
 fi
 
 # Add chromium pacman config
@@ -78,7 +78,7 @@ sed -i 's/GRUB_DISABLE_RECOVERY=true/#GRUB_DISABLE_RECOVERY=true/g' /etc/default
 # Enable Hibernation
 br && read -rep "Do you want to enable hibernation support? [Y/N]: " HIBERYN
 if [ "${HIBERYN}" = "y" ]; then
-	br && lsblk && br
+	lsblk && br
 	read -rep 'Please write name of swap partation [E.g /dev/sda2]: ' SWAPID
 	read -rep "SWAP is in $SWAPID. Is it correct? [Y/N]: " SWAPCONFIRM
 	if [ "${SWAPCONFIRM}" = "y" ] || [ "${SWAPCONFIRM}" = "Y" ]; then
