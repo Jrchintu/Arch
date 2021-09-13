@@ -186,8 +186,7 @@ install-xfce() {
 }
 
 de() {
-    br
-    echo -e "Choose a Desktop Environment to install: \n"
+    br && echo -e "Choose a Desktop Environment to install: \n"
     echo -e "1. GNOME \n2. DEEPIN \n3. KDE \n4. XFCE"
     read -r -p "DE: " desktope
     case "$desktope" in
