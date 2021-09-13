@@ -99,13 +99,13 @@ partationing() {
 
 mounting() {
     clear && lsblk && br
-    read -r -p "Which is your root partition [Eg. /dev/sda3]? " ROOTP
+    read -r -p "Which is your root partition [Eg. /dev/sda3]?: " ROOTP
     mkfs.ext4 "$ROOTP"
     mount -o "defaults,noatime,commit=60" "$ROOTP" /mnt
     mkdir -pv /mnt/{boot/efi,home}
 
     clear && lsblk && br
-    read -r -p "Which is your boot partition [Eg. /dev/sda1]? " BOOTP
+    read -r -p "Which is your boot partition [Eg. /dev/sda1]?: " BOOTP
     read -r -p "Do you want to format your boot partition? [y/N] " RESPB
     case "$RESPB" in
     [yY][eE][sS] | [yY])
@@ -117,12 +117,12 @@ mounting() {
     mount -o "defaults,noatime,nosuid,nodev" "$BOOTP" /mnt/boot/efi
 
     clear && lsblk && br
-    read -r -p "Do you want to use a seperate home partition? [y/N] " RESPH
+    read -r -p "Do you want to use a seperate home partition? [y/N]: " RESPH
     case "$RESPH" in
     [yY][eE][sS] | [yY])
-        read -rep "which is your home partition [Eg. /dev/sda4]? " HOMEP
-        read -rep "Do you want to ***FORMAT*** your home partition? [y/N] " TMPVAR
-        read -rep 'Literally, do you want to format /home partation?' RESPRMH
+        read -rep "which is your home partition? [Eg. /dev/sda4]: " HOMEP
+        read -rep "Do you want to ***FORMAT*** your home partition? [y/N]: " TMPVAR
+        read -rep 'Literally, do you want to format /home partation?[Y/N]:' RESPRMH
         case "$RESPRMH" in
         [yY][eE][sS] | [yY])
             mkfs.ext4 "$HOMEP"
