@@ -306,5 +306,4 @@ main() {
 
 clear
 ascii
-br
 main
