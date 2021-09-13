@@ -38,15 +38,15 @@ updatestuff() {
         echo "Please run as root" && exit
         if : >/dev/tcp/8.8.8.8/53; then
             echo ''
-        else echo 'offline Please connect...[Use iwctl command]' && exit; fi
+        else echo 'Offline Please connect...[Use iwctl command then type help]' && exit; fi
     fi
     pacman -Syyy --noconfirm
 }
 
 partationing() {
-    read -rep 'Type Y for new Partation table or N for Editing old table with cgdisk: ' OLDNEW
+    read -rep 'Type Y for new Partation table / N for Editing old table with cgdisk: ' OLDNEW
     if [[ "$OLDNEW" = 'y' ]] || [[ "$OLDNEW" = 'Y' ]]; then
-        read -rep "Which drive you want to partition (example /dev/sda)? " DRIVE2EDIT
+        read -rep "Which drive you want to partition (example /dev/sda)?: " DRIVE2EDIT
         clear && br && echo "We will create and format the partitions as follows:" && tablegpt && br
         read -rep 'Want to edit ? [Y/N]: ' FSOK
         if [[ "$FSOK" = 'y' ]] || [[ "$FSOK" = 'Y' ]]; then
@@ -67,7 +67,7 @@ partationing() {
             read -re -i "$HOME1" HOME1
         fi
         clear && br && tablegpt && lsblk && br
-        read -rep 'All Good, shall i write table to disk ? [Y/N]: ' FSOK
+        read -rep 'All Good, shall i write table to disk? [Y/N]: ' FSOK
         if [[ "$FSOK" = 'y' ]] || [[ "$FSOK" = 'Y' ]]; then
             # Make partation table {x:x:x}=={partation_no:starting_block:desired_size}
             sgdisk -Z "$DRIVE2EDIT"                                    # Destroy existing mbr or gpt structures on disk
@@ -121,8 +121,8 @@ mounting() {
     case "$RESPH" in
     [yY][eE][sS] | [yY])
         read -rep "which is your home partition? [Eg. /dev/sda4]: " HOMEP
-        read -rep "Do you want to ***FORMAT*** your home partition? [y/N]: " TMPVAR
-        read -rep 'Literally, do you want to format /home partation?[Y/N]:' RESPRMH
+        read -rep "Do you want to ***FORMAT*** your /home partition?[Y/N]: " TMPVAR
+        read -rep 'Literally, do you want to **FORMAT** /home partation?[Y/N]: ' RESPRMH
         case "$RESPRMH" in
         [yY][eE][sS] | [yY])
             mkfs.ext4 "$HOMEP"
@@ -163,44 +163,31 @@ chrootstuff() {
     arch-chroot /mnt bash -c "bash /chroot.sh && exit"
 }
 
-install-gnome() {
-    pacstrap /mnt gnome gnome-tweaks papirus-icon-theme
-    arch-chroot /mnt bash -c "systemctl enable gdm && exit"
-    # Editing gdm's config for disabling Wayland as it does not play nicely with Nvidia
-    arch-chroot /mnt bash -c "sed -i 's/#W/W/' /etc/gdm/custom.conf && exit"
-}
-install-deepin() {
-    pacstrap /mnt deepin lightdm gedit
-    arch-chroot /mnt bash -c "systemctl enable lightdm && exit"
-}
-install-kde() {
-    pacstrap /mnt xorg-server plasma sddm
-    arch-chroot /mnt bash -c "systemctl enable sddm && exit"
-}
-install-xfce() {
-    pacstrap /mnt xfce4 xorg-server lightdm lightdm-gtk-greeter \
-    gtk-engine-murrine gtk-engines xfce4-screenshooter xfce4-power-manager \
-    xfce4-whiskermenu-plugin xfce4-pulseaudio-plugin xfce4-battery-plugin network-manager-applet \
-    gvfs gvfs-mtp mtpfs thunar-media-tags-plugin accountsservice
-    arch-chroot /mnt bash -c "systemctl enable lightdm && exit"
-}
-
 de() {
     br && echo -e "Choose a Desktop Environment to install: \n"
     echo -e "1. GNOME \n2. DEEPIN \n3. KDE \n4. XFCE"
-    read -r -p "DE: " desktope
-    case "$desktope" in
+    read -rep "DE[1-4]: " DESKTOPE
+    case "$DESKTOPE" in
     1)
-        install-gnome
+        pacstrap /mnt gnome gnome-tweaks papirus-icon-theme
+        arch-chroot /mnt bash -c "systemctl enable gdm && exit"
+        # Editing gdm's config for disabling Wayland as it does not play nicely with Nvidia
+        arch-chroot /mnt bash -c "sed -i 's/#W/W/' /etc/gdm/custom.conf && exit"
         ;;
     2)
-        install-deepin
+        pacstrap /mnt deepin lightdm gedit
+        arch-chroot /mnt bash -c "systemctl enable lightdm && exit"
         ;;
     3)
-        install-kde
+        pacstrap /mnt xorg-server plasma sddm
+        arch-chroot /mnt bash -c "systemctl enable sddm && exit"
         ;;
     4)
-        install-xfce
+        pacstrap /mnt xfce4 xorg-server lightdm lightdm-gtk-greeter \
+        gtk-engine-murrine gtk-engines xfce4-screenshooter xfce4-power-manager \
+        xfce4-whiskermenu-plugin xfce4-pulseaudio-plugin xfce4-battery-plugin network-manager-applet \
+        gvfs gvfs-mtp mtpfs thunar-media-tags-plugin accountsservice
+        arch-chroot /mnt bash -c "systemctl enable lightdm && exit"
         ;;
     *) ;;
 
@@ -208,15 +195,9 @@ de() {
 }
 
 installgrub() {
-    read -r -p "Install GRUB bootloader?[y/N]: " igrub
-    case "$igrub" in
-    [yY][eE][sS] | [yY])
-        echo -e "Installing GRUB.."
-        arch-chroot /mnt bash -c "grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Arch && grub-mkconfig -o /boot/grub/grub.cfg && exit"
-        ;;
-    *) ;;
-
-    esac
+    br && echo -e "Installing GRUB.."
+    arch-chroot /mnt bash -c "grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Arch && exit"
+    arch-chroot /mnt bash -c "grub-mkconfig -o /boot/grub/grub.cfg && exit"
 }
 
 browser() {
@@ -252,7 +233,6 @@ extrastuff() {
 }
 
 main() {
-    clear && br
     echo "These Steps Are Available For Installion Usually choose 1."
     echo ""
     echo "1.  Update Pacman"
@@ -264,7 +244,7 @@ main() {
     echo "7.  Grub"
     echo "8.  Browser"
     echo "9.  Extra packages"
-    br && read -rep "Enter the number of step[1-9]: " stepno && clear
+    br && read -rep "Enter the number of step [1-9]: " stepno && clear
 
     array=(updatestuff partationing mounting base chrootstuff de installgrub browser extrastuff)
     stepno=$((stepno - 1))
@@ -277,4 +257,5 @@ main() {
 
 clear
 ascii
+br
 main
