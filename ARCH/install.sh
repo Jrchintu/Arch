@@ -81,7 +81,7 @@ partationing() {
             # Inform the OS of partition table changes
             sgdisk -p "$DRIVE2EDIT"
             clear && br && echo "Press any key to write partation table to disk or ctrl+c to exit" && br
-            read -r tmpvar
+            read -r TMPVAR
             partprobe "$DRIVE2EDIT"
         else
             clear && lsblk && br
@@ -101,7 +101,7 @@ mounting() {
     clear && lsblk && br
     read -r -p "Which is your root partition [Eg. /dev/sda3]? " ROOTP
     mkfs.ext4 "$ROOTP"
-    mount -o "defaults,noatime,commit=60" "$rootp" /mnt
+    mount -o "defaults,noatime,commit=60" "$ROOTP" /mnt
     mkdir -pv /mnt/{boot/efi,home}
 
     clear && lsblk && br
@@ -114,7 +114,7 @@ mounting() {
     *) ;;
 
     esac
-    mount -o "defaults,noatime,nosuid,nodev" "$bootp" /mnt/boot/efi
+    mount -o "defaults,noatime,nosuid,nodev" "$BOOTP" /mnt/boot/efi
 
     clear && lsblk && br
     read -r -p "Do you want to use a seperate home partition? [y/N] " RESPH
@@ -130,7 +130,7 @@ mounting() {
         *) ;;
 
         esac
-        mount -o "defaults,noatime,nosuid,nodev" "$homep" /mnt/home
+        mount -o "defaults,noatime,nosuid,nodev" "$HOMEP" /mnt/home
         ;;
     *) ;;
 
