@@ -106,7 +106,7 @@ curl -L https://raw.githubusercontent.com/Jrchintu/CDN/main/ARCH/XTRA/fancontrol
 systemctl enable --now fancontrol
 
 # Thermald
-pacman -S --needed --noconfirm
+pacman -S --needed --noconfirm thermald
 systemctl enable --now thermald
 
 # Firewall
