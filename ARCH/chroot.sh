@@ -21,7 +21,7 @@ else
 	read -rep "Enter the username for new user [Only small character without symbol]: " USER1
 	read -rep "Enter the hostname/Machine-name: " HNAME
 	read -rep "Enter Region/Zone Eg.Asia/Kolkata: " RNAME
-	br && echo -e "USERNAME = $USER1\nHOSTNAME = $HNAME\nREGION/ZONE = $RNAME" 
+	br && echo -e "USERNAME = $USER1\nHOSTNAME = $HNAME\nREGION/ZONE = $RNAME"
 	read -rep "Is above data correct? [Y/N]: " DATANY
 	if [[ "$DATANY" = 'n' ]] || [[ "$DATANY" = 'N' ]]; then exit; fi
 fi
@@ -89,8 +89,8 @@ if [ "${HIBERYN}" = "y" ]; then
 	else
 		exit
 	fi
-fi		
-	
+fi
+
 # Networkmanager & disable systemd-resolved
 pacman -Sy --needed --noconfirm networkmanager
 cat > /etc/NetworkManager/NetworkManager.conf << "EOF"
@@ -105,7 +105,7 @@ pacman -S --needed --noconfirm lm_sensors
 curl -L https://raw.githubusercontent.com/Jrchintu/CDN/main/ARCH/XTRA/fancontrol >/etc/fancontrol
 systemctl enable --now fancontrol
 
-# Thermald
+# Thermald/Need /etc/thermald/thermald-config.xml
 pacman -S --needed --noconfirm thermald
 systemctl enable --now thermald
 
@@ -121,8 +121,8 @@ pacman -S --needed --noconfirm bluez bluez-utils blueman
 systemctl enable --now bluetooth
 
 # Pipewire
-pacman -S --needed --noconfirm pipewire pipewire-pulse pipewire-media-session pavucontrol
-systemctl --now pipewire-pulse pipewire-media-session
+pacman -S --needed --noconfirm pavucontrol pipewire pipewire-{pulse,media-session,jack,alsa}
+systemctl enable --now --user pipewire pipewire-pulse pipewire-media-session
 
 # XFCE Tweaks/WIP
 #sed -i 's|#lock-memory=true|lock-memory=true|g' /etc/lightdm/lightdm.conf

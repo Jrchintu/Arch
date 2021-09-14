@@ -21,9 +21,12 @@ noroot(){
 		sudo -H -u "$SUSER" bash -c "$1"
 }
 
+# Make my fav dirs
+mkdir -p "$HOME"/{Git,Backup}
+
 # Install Fav App's
-pacman -Syyu --needed lm_sensors thermald papirus-icon-theme \
-    libsecret cracklib man-db man-pages htop byobu aria2 youtube-dl xarchiver-gtk2
+pacman -Syu --needed lm_sensors thermald papirus-icon-theme gnome-keyring \
+    libsecret cracklib man-db man-pages alacritty ttf-hack ttf-lato # aria2 youtube-dl xarchiver-gtk2
 
 # VSCODIUM
 paru -S vscodium-bin
@@ -32,7 +35,7 @@ paru -S intel-ucode
 # NVIDIA
 paru -S nvidia-390xx-utils nvidia-390xx-dkms optimus-manager
 # INTEL
-paru -S xf86-input-libinput xf86-video-intel mesa
+paru -S mesa
 # VAAPI
 paru -S libva libva-utils libva-intel-driver-hybrid intel-hybrid-codec-driver
 echo -e "export LIBVA_DRIVER_NAME='i965'" >>/etc/profile.d/graphic.sh
@@ -41,6 +44,31 @@ paru -S libglvnd libvdpau-va-gl libva-vdpau-driver
 echo -e "export VDPAU_DRIVER='va_gl'" >>/etc/profile.d/graphic.sh
 # VULKAN
 paru -S vulkan-intel vulkan-mesa-layers
+# FOSS-XORG-DRIVERS
+pacman -S --needed xf86-video-fbdev \
+xf86-video-vesa \
+xf86-video-intel \
+xf86-video-nouveau \
+xf86-video-vesa \
+xf86-video-fbdev \
+xf86-input-libinput \
+# ACPID
+pacman -S --needed acpid
+systemctl enable --now acpid
+# ACPI_CALL
+pacman -S --needed acpi_call-dkms
+# XORG-FONT-STUFF
+pacman -S --needed xorg-font-util \
+xorg-fonts-100dpi \
+xorg-fonts-75dpi \
+xorg-fonts-alias-100dpi \
+xorg-fonts-alias-75dpi \
+xorg-fonts-alias-cyrillic \
+xorg-fonts-alias-misc \
+xorg-fonts-cyrillic \
+xorg-fonts-encodings \
+xorg-fonts-misc \
+xorg-fonts-type1
 
 # Install DPI TUNNEL
 git clone --depth=1 -b master --single-branch https://github.com/zhenyolka/DPITunnel
@@ -52,23 +80,16 @@ xfconf-query -c xfwm4 -p /general/vblank_mode -t string -s 'xpresent' --create #
 xfconf-query -c xfwm4 -p /general/use_compositing -s false  # Disable xfce compositor
 xfconf-query -c xfwm4 -p /general/mousewheel_rollup -s true # SHADE UP ON MOUSE SCROLL
 xfconf-query -c xfwm4 -p /general/tile_on_move -s true      # XFCE TILING MODE
-xfconf-query -c xfce4-session -p /shutdown/LockScreen -s true
-xfconf-query -c xfce4-session -p /general/SaveOnExit -n -t bool -s false
-xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/lock-screen-suspend-hibernate -s true
-xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/logind-handle-suspend-key -n -t bool -s true
+xfconf-query -c xfce4-session -p /shutdown/LockScreen -n -t bool -s true --create
+xfconf-query -c xfce4-session -p /general/SaveOnExit -n -t bool -s false --create
+xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/lock-screen-suspend-hibernate -n -t bool -s true --create
+xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/logind-handle-suspend-key -n -t bool -s true --create
 
 # Stop Junk service & Some tweaks
 systemctl daemon-reload
 systemctl --now disable pulseaudio.service pulseaudio.socket avahi-daemon systemd-resolved
 systemctl --now enable pipewire pipewire-pulse pipewire-media-session bluetooth thermald tlp fstrim fstrim.timer lightdm preload
 systemctl mask pulseaudio systemd-resolved
-
-# Add/Remove Some Junk
-pacman -Rcns xfce4-appfinder xterm rsh-server telnet-server
-pacman -Rcns "$(pacman -Qtdq)"
-paru -Scc
-rm -rfv ~/.cache/sessions/* && chmod 500 ~/.cache/sessions
-mkdir -p "$HOME"/{Git,Backup}
 
 # Generate init and grub and sysctl
 mkinitcpio -c /etc/mkinitcpio.conf -g /boot/initramfs-linux.img -k "$(uname -r)"
