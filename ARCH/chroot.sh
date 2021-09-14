@@ -128,7 +128,3 @@ systemctl enable --now --user pipewire pipewire-pulse pipewire-media-session
 #sed -i 's|#lock-memory=true|lock-memory=true|g' /etc/lightdm/lightdm.conf
 #sed -i 's|#greeter-hide-users=false|greeter-hide-users=true|g' /etc/lightdm/lightdm.conf
 #sed -i 's|#cache-directory=/var/cache/lightdm|cache-directory=/var/cache/lightdm|g' /etc/lightdm/lightdm.conf
-
-# Disable avahi
-systemctl --now disable avahi-daemon
-systemctl mask avahi-daemon
