@@ -44,8 +44,10 @@ updatestuff() {
 }
 
 partationing() {
-    read -rep 'Type Y for new Partation table / N for Editing old table with cgdisk: ' OLDNEW
-    if [[ "$OLDNEW" = 'y' ]] || [[ "$OLDNEW" = 'Y' ]]; then
+    echo -e '1. Create New Partation table [Recommended for new installs]\n2. Edit Old Partation table with cgdisk [Recommended for Pro user]'
+    echo -e '3. Skip partationing [Choose only if you know partationing is correct]'
+    read -rep ':> ' OLDNEW
+    if [[ "$OLDNEW" = '1' ]]; then
         read -rep "Which drive you want to partition (example /dev/sda)?: " DRIVE2EDIT
         clear && br && echo "We will create and format the partitions as follows:" && tablegpt && br
         read -rep 'Want to edit ? [Y/N]: ' FSOK
@@ -89,11 +91,13 @@ partationing() {
             # Using cgdisk for GPT, for mbr use cfdisk
             cgdisk "$DRIVE2EDIT"
         fi
-    else
+    elif [ "$OLDNEW" = '2' ]; then
         clear && lsblk && br
         read -rep "Which drive you want to partition [Exit with ctrl+c] (example /dev/sda) ? " DRIVE2EDIT
         # Using cgdisk for GPT, for mbr use cfdisk
         cgdisk "$DRIVE2EDIT"
+    else
+        true
     fi
 }
 
@@ -101,7 +105,7 @@ mounting() {
     clear && lsblk && br
     read -r -p "Which is your root partition [Eg. /dev/sda3]?: " ROOTP
     mkfs.ext4 "$ROOTP"
-    mount -o "defaults,noatime,commit=60" "$ROOTP" /mnt
+    mount -o "defaults,noatime" "$ROOTP" /mnt
     mkdir -pv /mnt/{boot/efi,home}
 
     clear && lsblk && br
@@ -159,7 +163,7 @@ base() {
 chrootstuff() {
     br && echo -e "Entering Chroot...\n"
     arch-chroot /mnt bash -c "curl -LO https://github.com/Jrchintu/CDN/raw/main/ARCH/chroot.sh && exit"
-    arch-chroot /mnt bash -c "sudo chmod a+x /chroot.sh && exit"
+    arch-chroot /mnt bash -c "chmod a+x /chroot.sh && exit"
     arch-chroot /mnt bash -c "bash /chroot.sh && exit"
 }
 
@@ -252,11 +256,20 @@ main() {
         ${array[$stepno]}
         stepno=$((stepno + 1))
     done
-    umount -far
-    swapoff $SWAPP
 }
 
 clear
 ascii
 br
 main
+
+# EXIT
+umount -f /mnt
+umount -f /mnt/home
+umount -f /mnt/boot/efi
+swapoff -a
+read -rep 'Do you want to reboot?[Y/N]: ' REBOOTYN
+if [ "$REBOOTYN" = 'y' ] || [ "$REBOOTYN" = 'Y' ]; then
+    echo 'Rebooting, remember to say "I use arch BTW"'
+    reboot
+fi
