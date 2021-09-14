@@ -253,6 +253,7 @@ main() {
         stepno=$((stepno + 1))
     done
     umount -far
+    swapoff $SWAPP
 }
 
 clear
