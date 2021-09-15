@@ -40,7 +40,6 @@ Crux
 Cruxish
 Curve
 Daloa
-Default
 Default-4.0
 Default-4.2
 Default-4.4
