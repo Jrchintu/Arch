@@ -44,8 +44,9 @@ updatestuff() {
 }
 
 partationing() {
-    echo -e '1. Create New Partation table [Recommended for new installs]\n2. Edit Old Partation table with cgdisk [Recommended for Pro user]'
-    echo -e '3. Skip partationing [Choose only if you know partationing is correct]'
+    echo -e '1. Create New Partation table [Recommended for new installs]'
+    echo -e '2. Edit Old Partation table with cgdisk [Recommended for Pro user]'
+    echo -e '3. Skip partationing [Choose only if you know partition is correct]'
     read -rep ':> ' OLDNEW
     if [[ "$OLDNEW" = '1' ]]; then
         read -rep "Which drive you want to partition (example /dev/sda)?: " DRIVE2EDIT
@@ -144,7 +145,7 @@ mounting() {
     read -r -p "Do you want to use a seperate SWAP partition? [y/N] " RESPS
     case "$RESPS" in
     [yY][eE][sS] | [yY])
-        read -r -p "Which Is Your Swap Partition [Eg. /dev/sda2]? " SWAPP
+        read -r -p "Which Is Your Swap Partition [Eg. /dev/sda2]? " SWAPP && export SWAPP
         mkswap "$SWAPP"
         swapon "$SWAPP"
         ;;
@@ -155,6 +156,10 @@ mounting() {
 
 base() {
     br && echo "Starting installation of packages in selected root drive..."
+    arch-chroot /mnt bash -c 'read -rep "Do you want to use your old saved packages directory [Y/N]: " PACBDIR
+    if [ "$PACBDIR" = 'y' ] || [ "$PACBDIR" = 'Y' ]; then
+        sed -i 's|#CacheDir    = /var/cache/pacman/pkg/|CacheDir    = /home/SAFE/pkg/|g' /etc/pacman.conf
+    fi'
     pacstrap /mnt base linux-firmware linux-zen linux-zen-headers \
 		base-devel grub efibootmgr nano sudo git
     genfstab -U /mnt >/mnt/etc/fstab
