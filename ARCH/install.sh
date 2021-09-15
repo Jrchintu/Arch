@@ -156,10 +156,10 @@ mounting() {
 
 base() {
     br && echo "Starting installation of packages in selected root drive..."
-    arch-chroot /mnt bash -c 'read -rep "Do you want to use your old saved packages directory [Y/N]: " PACBDIR
+    read -rep "Do you want to use your old saved packages directory [Y/N]: " PACBDIR
     if [ "$PACBDIR" = 'y' ] || [ "$PACBDIR" = 'Y' ]; then
-        sed -i 's|#CacheDir    = /var/cache/pacman/pkg/|CacheDir    = /home/SAFE/pkg/|g' /etc/pacman.conf
-    fi'
+        arch-chroot /mnt bash -c "sed -i 's|#CacheDir    = /var/cache/pacman/pkg/|CacheDir    = /home/SAFE/pkg/|g' /etc/pacman.conf"
+    fi
     pacstrap /mnt base linux-firmware linux-zen linux-zen-headers \
 		base-devel grub efibootmgr nano sudo git
     genfstab -U /mnt >/mnt/etc/fstab
