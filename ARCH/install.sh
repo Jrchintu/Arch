@@ -44,7 +44,7 @@ updatestuff() {
 }
 
 partationing() {
-    echo -e '1. Create New Partation table [Recommended for new installs]'
+    clear && echo -e '1. Create New Partation table [Recommended for new installs]'
     echo -e '2. Edit Old Partation table with cgdisk [Recommended for Pro user]'
     echo -e '3. Skip partationing [Choose only if you know partition is correct]'
     read -rep ':> ' OLDNEW
