@@ -155,13 +155,14 @@ mounting() {
 }
 
 base() {
+    pacstrap /mnt
     br && echo "Starting installation of packages in selected root drive..."
     read -rep "Do you want to use your old saved packages directory [Y/N]: " PACBDIR
     if [ "$PACBDIR" = 'y' ] || [ "$PACBDIR" = 'Y' ]; then
-        arch-chroot /mnt bash -c "sed -i 's|#CacheDir    = /var/cache/pacman/pkg/|CacheDir    = /home/SAFE/pkg/|g' /etc/pacman.conf"
+        sed -i 's|#CacheDir    = /var/cache/pacman/pkg/|CacheDir    = /mnt/home/SAFE/pkg/|g' /mnt/etc/pacman.conf
     fi
-    pacstrap /mnt base linux-firmware linux-zen linux-zen-headers \
-		base-devel grub efibootmgr nano sudo git
+    pacstrap /mnt linux-firmware linux-zen linux-zen-headers \
+		  base-devel grub efibootmgr nano sudo git
     genfstab -U /mnt >/mnt/etc/fstab
 }
 
