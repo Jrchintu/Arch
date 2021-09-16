@@ -31,10 +31,13 @@ passwd -l root # Disable root login by default
 # NEWUSER-&-PASSWORD
 br && echo "Enter powerfull password for new user \"$USERN\" [Keep powerfull password in mind]"
 if [ -e /home/"$USERN" ]; then
-    useradd -MG wheel -s /bin/bash -d /home/"$USERN" -N "$USERN"
+	echo 'DIR ALREADY EXIST'
+    useradd -M -U -G wheel,users -s /bin/bash -d /home/"$USERN" "$USERN"
     chown -R "$USERN":users /home/"$USERN"
 else
-    useradd -mG wheel -s /bin/bash -N "$USERN"
+	echo 'DIR DONT EXIST'
+    useradd -m -U -G wheel,users -s /bin/bash -d /home/"$USERN" "$USERN"
+    chown -R "$USERN":users /home/"$USERN"
 fi
 passwd "$USERN"
 EDITOR=nano sed -i 's/^#\s*\(%wheel\s\+ALL=(ALL)\s\+ALL\)/\1/' /etc/sudoers
