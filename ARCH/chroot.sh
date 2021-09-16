@@ -30,7 +30,7 @@ passwd
 # NEWUSER-&-PASSWORD
 br && echo "Enter powerfull password for new user \"$USERN\" [Keep powerfull password in mind]"
 if compgen -u | grep "$USERN" &>/dev/null; then true; else
-	useradd -m -G wheel,power,input,storage,uucp,network -s /usr/bin/bash -N "$USERN" || echo 'error' && exit
+	useradd -m -G wheel -s /bin/bash -N "$USERN" || echo 'error' && exit
 fi
 passwd "$USERN"
 EDITOR=nano sed -i 's/^#\s*\(%wheel\s\+ALL=(ALL)\s\+ALL\)/\1/' /etc/sudoers
