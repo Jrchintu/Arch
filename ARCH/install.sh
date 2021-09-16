@@ -17,7 +17,7 @@ ascii() {
     echo '$$ |  $$ |$$ |      $$ |      $$ |  $$ |        $$ |  $$ |  $$ | \____$$\   $$ |$$\ $$  __$$ |$$ |$$ |'
     echo '$$ |  $$ |$$ |      \$$$$$$$\ $$ |  $$ |      $$$$$$\ $$ |  $$ |$$$$$$$  |  \$$$$  |\$$$$$$$ |$$ |$$ |'
     echo '\__|  \__|\__|       \_______|\__|  \__|      \______|\__|  \__|\_______/    \____/  \_______|\__|\__|'
-    echo '# EDIT BEFORE USING NO ONE WILL BE RESPONSIBLE IF ANYTHING WENT WRONG.                                '
+    echo '# EDIT BEFORE USING. NO ONE WILL BE RESPONSIBLE IF ANYTHING WENT WRONG.                                '
     echo '# CREDITS == https://github.com/prmsrswt/arch-install                                                 '
     echo '# PRO USER MEANS WHO KNOW WHATS HAPPENING IN BACKGROUND OF SCRIPT.                                    '
 }
@@ -27,10 +27,11 @@ br() {
 }
 
 tablegpt() {
-    echo -e """\n$DRIVE2EDIT""1 [efi] = $BOOTSZ"
-    echo """$DRIVE2EDIT""2 [swap] = $SWAPSZ"
-    echo """$DRIVE2EDIT""3 [root] = $ROOTSZ"
-    echo -e """$DRIVE2EDIT""4 [home] = $HOMESZ [0=All remaining space]\n"
+	echo ""$DRIVE2EDIT"1 ROOT = $ROOTSZ"
+	echo ""$DRIVE2EDIT"2 HOME = $HOMESZ"
+    echo ""$DRIVE2EDIT"3 SWAP = $SWAPSZ"
+    echo ""$DRIVE2EDIT"4 ROOT = $BOOTSZ"
+    echo ""$DRIVE2EDIT"5 BIOS = $BIOSSZ"
 }
 
 updates() {
@@ -71,11 +72,11 @@ partition() {
             read -re -i "$HOMESZ" HOMESZ
         fi
         clear && br && tablegpt && lsblk -af && br
-        read -rp 'All Good, shall i write table to disk? [Y/N]: ' FSOK
+        read -rp 'All Good ? [Y/N]: ' FSOK
         if [[ "$FSOK" = 'y' ]] || [[ "$FSOK" = 'Y' ]]; then
             # Make partition table {x:x:x}=={partition_no:starting_block:desired_size}
             sgdisk -Z "$DRIVE2EDIT"                                    # Destroy existing mbr or gpt structures on disk
-            sgdisk -a 2048 -o                                          # New gpt disk 2048 alignment
+            sgdisk -a 4096 -o                                          # New gpt disk 4096 alignment
             sgdisk -n 1:0:"$ROOTSZ" -t 1:8300 -c 1:"ROOT" "$DRIVE2EDIT" # Part 1 (ROOT), default start, 60GB
             sgdisk -n 3:0:"$SWAPSZ" -t 3:8200 -c 3:"SWAP" "$DRIVE2EDIT" # Part 3 (SWAP), default start, 6GB
             sgdisk -n 4:0:"$BOOTSZ" -t 4:ef00 -c 4:"BOOT" "$DRIVE2EDIT" # Part 4 (BOOT), default start, 512MB
@@ -98,8 +99,10 @@ partition() {
         read -rp "Which drive you want to partition [Exit with ctrl+c] (example /dev/sda) ? " DRIVE2EDIT
         # Using cgdisk for GPT, for mbr use cfdisk
         cgdisk "$DRIVE2EDIT"
-    else
+    elif [ "$OLDNEW" = '3' ]; then
         true
+    else
+        exit
     fi
 }
 
@@ -112,7 +115,7 @@ mounting() {
 
     clear && lsblk -af && br
     read -rp "Which is your boot partition [Eg. /dev/sda1]?: " BOOTP
-    read -rp "Do you want to format your boot partition? [y/N] " RESPB
+    read -rp "Do you want to format your boot partition? [y/N]: " RESPB
     case "$RESPB" in
     [yY][eE][sS] | [yY])
         mkfs.fat -F32 "$BOOTP"
@@ -155,8 +158,8 @@ base() {
     br && echo "Starting installation of packages in selected root drive..."
     read -rp "Do you want to use your old saved packages directory?[FOR PRO USER ONLY][Y/N]: " PACBDIR
     if [ "$PACBDIR" = 'y' ] || [ "$PACBDIR" = 'Y' ]; then
-        sed -i 's|#CacheDir    = /var/cache/pacman/pkg/|CacheDir    = /home/SAFE/pkg/|g' /mnt/etc/pacman.conf
-        sed -i 's|#CacheDir    = /var/cache/pacman/pkg/|CacheDir    = /mnt/home/SAFE/pkg/|g' /etc/pacman.conf
+        sed -i 's|#CacheDir    = /var/cache/pacman/pkg/|CacheDir    = /home/me/PKG/|g' /mnt/etc/pacman.conf
+        sed -i 's|#CacheDir    = /var/cache/pacman/pkg/|CacheDir    = /mnt/home/me/PKG/|g' /etc/pacman.conf
     fi
     pacstrap /mnt base linux-firmware linux-zen linux-zen-headers base-devel grub efibootmgr nano sudo git
     genfstab -U /mnt >/mnt/etc/fstab

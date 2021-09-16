@@ -96,7 +96,7 @@ mkcd(){
     mkdir -pv "$1" && cd "$1" || echo 'ERROR' && exit
 }
 up() {
-    for LOOP in $1; do; curl -T "$LOOP" https://transfer.sh/"$(basename "$LOOP")"; echo; done
+    for LOOP in $1; do curl -T "$LOOP" https://transfer.sh/"$(basename "$LOOP")"; echo; done
 }
 tgmsg() {
     TGTEXT="$1"

@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Some variables/Functions
 clear && LC_ALL=C && LANG=C
 echo -e "export EDITOR='nano'" >>/etc/profile.d/env.sh
 br() {
@@ -31,8 +30,11 @@ passwd -l root # Disable root login by default
 
 # NEWUSER-&-PASSWORD
 br && echo "Enter powerfull password for new user \"$USERN\" [Keep powerfull password in mind]"
-if compgen -u | grep "$USERN" &>/dev/null; then true; else
-	useradd -m -G wheel -s /bin/bash -N "$USERN" || echo 'error' && exit
+if [ -e /home/"$USERN" ]; then
+    useradd -MG wheel -s /bin/bash -d /home/"$USERN" -N "$USERN"
+    chown -R "$USERN":users /home/"$USERN"
+else
+    useradd -mG wheel -s /bin/bash -N "$USERN"
 fi
 passwd "$USERN"
 EDITOR=nano sed -i 's/^#\s*\(%wheel\s\+ALL=(ALL)\s\+ALL\)/\1/' /etc/sudoers
@@ -60,9 +62,12 @@ sed -i '94s/#I/I/' /etc/pacman.conf
 sed -i 's/#Color/Color/g' /etc/pacman.conf
 sed -i 's/#VerbosePkgLists/VerbosePkgLists/g' /etc/pacman.conf
 
-# GRUB-CONFIG
+# GRUB-TWEAKS
 sed -i 's/#GRUB_DISABLE_SUBMENU=y/GRUB_DISABLE_SUBMENU=y/g' /etc/default/grub
-sed -i 's/GRUB_DISABLE_RECOVERY=true/#GRUB_DISABLE_RECOVERY=true/g' /etc/default/grub
+sed -i 's/GRUB_TIMEOUT=5/GRUB_TIMEOUT=1/g' /etc/default/grub
+sed -i 's/#GRUB_COLOR_NORMAL/GRUB_COLOR_NORMAL/g' /etc/default/grub
+sed -i 's/#GRUB_COLOR_HIGHLIGHT/GRUB_COLOR_HIGHLIGHT/blue"/g' /etc/default/grub
+sed -i 's/GRUB_DISABLE_RECOVERY=true/GRUB_DISABLE_RECOVERY=false/g' /etc/default/grub
 
 # Enable Hibernation
 br && read -rp "Do you want to enable hibernation support?[Edit script if system is encrypted][Y/N]: " HIBERYN
@@ -80,24 +85,9 @@ if [ "${HIBERYN}" = "y" ]; then
 	fi
 fi
 
-# Networkmanager & disable systemd-resolved
+# Networkmanager
 pacman -Sy --needed --noconfirm networkmanager
-cat > /etc/NetworkManager/NetworkManager.conf << "EOF"
-[main]
-dns=none
-systemd-resolved=false
-EOF
 systemctl enable --now NetworkManager
-
-# USE BETTER DNS
-chattr -i /etc/resolv.conf
-echo -e 'options timeout:1
-options single-request
-options rotate
-nameserver 8.8.8.8
-nameserver 8.8.4.4
-nameserver 1.1.1.1' >>/etc/resolv.conf
-chattr +i /etc/resolv.conf # Dont allow editing it by other apps.
 
 # Fancontrol
 pacman -S --needed --noconfirm lm_sensors
