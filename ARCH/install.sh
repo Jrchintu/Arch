@@ -164,7 +164,6 @@ base() {
 
 chroots() {
     br && echo -e "Entering Chroot...\n"
-    arch-chroot /mnt bash -c "sed -i 's|#CacheDir    = /var/cache/pacman/pkg/|CacheDir    = /home/SAFE/pkg/|g' /etc/pacman.conf"
     arch-chroot /mnt bash -c "curl -LO https://github.com/Jrchintu/CDN/raw/main/ARCH/chroot.sh && exit"
     arch-chroot /mnt bash -c "chmod a+x /chroot.sh && bash /chroot.sh && exit"
 }
@@ -178,7 +177,7 @@ de() {
         pacstrap /mnt gnome gnome-tweaks papirus-icon-theme
         arch-chroot /mnt bash -c "systemctl enable --now gdm && exit"
         # Editing gdm's config for disabling Wayland as it does not play nicely with Nvidia
-        arch-chroot /mnt bash -c "sed -i 's/#W/W/' /etc/gdm/custom.conf && exit"
+        sed -i 's/#W/W/' /mnt/etc/gdm/custom.conf
         ;;
     2)
         pacstrap /mnt deepin lightdm
@@ -193,6 +192,7 @@ de() {
         xfce4-whiskermenu-plugin xfce4-pulseaudio-plugin xfce4-battery-plugin network-manager-applet \
         gvfs gvfs-mtp mtpfs thunar-media-tags-plugin thunar-archive-plugin accountsservice xfce4-screenshooter
         arch-chroot /mnt bash -c "systemctl enable --now lightdm && exit"
+        sed -i 's|#greeter-hide-users=false|greeter-hide-users=true|g' /mnt/etc/lightdm/lightdm.conf
         ;;
     *) ;;
 

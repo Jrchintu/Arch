@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Some variables/Functions
 clear && LC_ALL=C && LANG=C
+echo -e "export EDITOR='nano'" >>/etc/profile.d/env.sh
 br() {
     for ((i = 1; i <= $(tput cols); i++)); do echo -n -; done
 }
@@ -26,6 +27,7 @@ echo -e "127.0.0.1 $HNAME\n::1 $HNAME\n127.0.1.1 $HNAME.localdomain $HNAME" >/et
 br && echo "Setting new Root/Sudo/Admin password [Keep powerfull password in mind]"
 if compgen -g | grep &>/dev/null; then true; else groupadd sudo; fi
 passwd
+passwd -l root # Disable root login by default
 
 # NEWUSER-&-PASSWORD
 br && echo "Enter powerfull password for new user \"$USERN\" [Keep powerfull password in mind]"
@@ -70,7 +72,7 @@ if [ "${HIBERYN}" = "y" ]; then
 	read -rp "SWAP is in $SWAPID. Is it correct? [Y/N]: " SWAPCONFIRM
 	if [ "${SWAPCONFIRM}" = "y" ] || [ "${SWAPCONFIRM}" = "Y" ]; then
 		SWAP_GRUB="$(blkid "$SWAPID" | cut -d '"' -f2)"
-		TEMP2="GRUB_CMDLINE_LINUX_DEFAULT=\"i8042.nopnp udev.log_priority=3 loglevel=3 resume=UUID=$SWAP_GRUB\""
+		TEMP2="GRUB_CMDLINE_LINUX_DEFAULT=\"i8042.nopnp nowatchdog loglevel=3 resume=UUID=$SWAP_GRUB\""
 		sed -i "s/GRUB_CMDLINE_LINUX_DEFAULT=.*/$TEMP2/g" /etc/default/grub
 		sed -i "s/HOOKS=(base.*/HOOKS=(base udev autodetect modconf block filesystems keyboard resume fsck)/g" /etc/mkinitcpio.conf
 	else
@@ -82,10 +84,20 @@ fi
 pacman -Sy --needed --noconfirm networkmanager
 cat > /etc/NetworkManager/NetworkManager.conf << "EOF"
 [main]
-#dns=none # need to fix from some linkdin site
+dns=none
 systemd-resolved=false
 EOF
 systemctl enable --now NetworkManager
+
+# USE BETTER DNS
+chattr -i /etc/resolv.conf
+echo -e 'options timeout:1
+options single-request
+options rotate
+nameserver 8.8.8.8
+nameserver 8.8.4.4
+nameserver 1.1.1.1' >>/etc/resolv.conf
+chattr +i /etc/resolv.conf # Dont allow editing it by other apps.
 
 # Fancontrol
 pacman -S --needed --noconfirm lm_sensors
@@ -108,8 +120,8 @@ pacman -S --needed --noconfirm bluez blueman
 systemctl enable --now bluetooth
 
 # Pipewire/Audio
-pacman -S --needed --noconfirm pavucontrol pipewire{,-pulse,-media-session}
+pacman -S --needed --noconfirm pavucontrol pipewire{,-pulse,-media-session,-jack}
 systemctl enable --now --user pipewire{,-pulse,-media-session}
 
-# XFCE Tweaks/WIP
-sed -i 's|#greeter-hide-users=false|greeter-hide-users=true|g' /etc/lightdm/lightdm.conf
+# Fstrim
+systemctl enable --now fstrim fstrim.timer

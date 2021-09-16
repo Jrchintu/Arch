@@ -37,39 +37,36 @@ paru -S nvidia-390xx-utils nvidia-390xx-dkms optimus-manager
 # INTEL
 paru -S mesa
 # VAAPI
-paru -S libva libva-utils libva-intel-driver-hybrid intel-hybrid-codec-driver
-echo -e "export LIBVA_DRIVER_NAME='i965'" >>/etc/profile.d/graphic.sh
+paru -S libva libva-intel-driver-hybrid intel-hybrid-codec-driver
+echo -e "export LIBVA_DRIVER_NAME='i965'" >>/etc/profile.d/env.sh
 # VDPAU
-paru -S libglvnd libvdpau-va-gl libva-vdpau-driver
-echo -e "export VDPAU_DRIVER='va_gl'" >>/etc/profile.d/graphic.sh
+paru -S libglvnd libvdpau-va-gl libva-vdpau-driver mesa-vdpau
+echo -e "export VDPAU_DRIVER='va_gl'" >>/etc/profile.d/env.sh
 # VULKAN
 paru -S vulkan-intel vulkan-mesa-layers
 # FOSS-XORG-DRIVERS
-pacman -S --needed xf86-video-fbdev \
-xf86-video-vesa \
-xf86-video-intel \
-xf86-video-nouveau \
-xf86-video-vesa \
-xf86-video-fbdev \
-xf86-input-libinput \
+pacman -S --needed xf86-video-{fbdev,vesa,intel,libinput}
 # ACPID
 pacman -S --needed acpid
 systemctl enable --now acpid
 # ACPI_CALL
 pacman -S --needed acpi_call-dkms
 # XORG-FONT-STUFF
-pacman -S --needed xorg-font-util \
-xorg-fonts-100dpi \
-xorg-fonts-75dpi \
-xorg-fonts-alias-100dpi \
-xorg-fonts-alias-75dpi \
-xorg-fonts-alias-cyrillic \
-xorg-fonts-alias-misc \
-xorg-fonts-cyrillic \
-xorg-fonts-encodings \
-xorg-fonts-misc \
-xorg-fonts-type1
-
+pacman -S --needed xorg-font-util xorg-fonts-{100dpi,75dpi,alias-100dpi,alias-75dpi,alias-cyrillic,alias-misc,cyrillic,encodings,misc,type1}
+# LINUX-TOOLS
+pacman -S --needed x86_energy_perf_policy usbip
+# XORG CONFIG
+echo -e 'Section "Device"
+  Identifier  "Intel Graphics"
+  Driver      "intel"
+  Option      "DRI" "3"            # Default
+  #Option      "DRI" "2"            # Fallback
+  Option      "AccelMethod"  "sna" # Default
+  #Option      "AccelMethod"  "uxa" # Fallback
+  Option      "TearFree" "true"
+EndSection' >/etc/X11/xorg.conf.d/20-intel.conf
+# Enable framebuffer compression [For intel gpu >6-gen]
+echo 'options i915 enable_fbc=1' >/etc/modprobe.d/i915.conf
 # Install DPI TUNNEL
 git clone --depth=1 -b master --single-branch https://github.com/zhenyolka/DPITunnel
 cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release
