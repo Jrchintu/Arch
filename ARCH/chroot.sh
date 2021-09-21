@@ -1,21 +1,20 @@
 #!/usr/bin/env bash
 clear && LC_ALL=C && LANG=C
-echo -e "export EDITOR='nano'" >>/etc/profile.d/env.sh
-br() {
-    for ((i = 1; i <= $(tput cols); i++)); do echo -n -; done
-}
+echo -e "export EDITOR='nano'" >>/etc/profile.d/env.sh && chmod a+x /etc/profile.d/env.sh
+br() { for ((i = 1; i <= $(tput cols); i++)); do echo -n -; done; }
 
-# QnA
+# Set Variables
 read -rp "Enter the username for new user [Only small character without symbol]: " USERN
 read -rp "Enter the hostname/Machine-Name: " HNAME
 read -rp "Enter Region/Zone Eg.Asia/Kolkata: " RNAME
 br && echo -e "USERNAME = $USERN\nHOSTNAME = $HNAME\nREGION/ZONE = $RNAME"
 read -rp "Is above data correct? [Y/N]: " DATAYN
-if [[ "$DATAYN" = 'y' ]] || [[ "$DATAYN" = 'Y' ]]; then true; else exit; fi
+if [[ "$DATAYN" =~ ^[Yy]$ ]]; then true; else exit; fi
 
 # Time & Locale
-ln -sf /usr/share/zoneinfo/"$RNAME" /etc/localtime   && hwclock --systohc
-sed -i 's/#en_US.UTF-8/en_US.UTF-8/' /etc/locale.gen && locale-gen
+ln -sf /usr/share/zoneinfo/"$RNAME" /etc/localtime
+timedatectl set-ntp true && hwclock --systohc
+sed -i 's/#en_US.UTF-8/en_US.UTF-8/g' /etc/locale.gen && locale-gen
 echo 'LANG=en_US.UTF-8' >/etc/locale.conf
 
 # HOSTNAME
@@ -28,26 +27,19 @@ if compgen -g | grep &>/dev/null; then true; else groupadd sudo; fi
 passwd
 passwd -l root # Disable root login by default
 
-# NEWUSER-&-PASSWORD
+# NEWUSER-&-PASSWORD # m=MakeNewUsrDir U=MakeNewUserGroup s=ShellIn/etc/shells
 br && echo "Enter powerfull password for new user \"$USERN\" [Keep powerfull password in mind]"
-if [ -e /home/"$USERN" ]; then
-	echo 'DIR ALREADY EXIST'
-    useradd -M -U -G wheel,users -s /bin/bash -d /home/"$USERN" "$USERN"
-    chown -R "$USERN":users /home/"$USERN"
-else
-	echo 'DIR DONT EXIST'
-    useradd -m -U -G wheel,users -s /bin/bash -d /home/"$USERN" "$USERN"
-    chown -R "$USERN":users /home/"$USERN"
-fi
+useradd -m -U -G wheel,users,games,power,optical,storage,audio,video -s /bin/bash "$USERN"
+chown -R "$USERN":users /home/"$USERN"
 passwd "$USERN"
 EDITOR=nano sed -i 's/^#\s*\(%wheel\s\+ALL=(ALL)\s\+ALL\)/\1/' /etc/sudoers
 
 # INSTALL PARU
-read -rp 'Do you want to install paru[Aur helper][Y/N]: ' PARUYN
-if [ "$PARUYN" = 'Y' ] || [ "$PARUYN" = 'y' ]; then
-    if [ -z "$USERN" ]; then read -rp 'Tell username you setted back [This is due to error last time] : ' USERN; else true; fi
-    sudo -H -u "$USERN" bash -c 'if [[ -f "$HOME/paru" ]]; then true; else git clone --depth=1 https://aur.archlinux.org/paru-bin.git $HOME/paru; fi'
-    sudo -H -u "$USERN" bash -c 'chmod -R 777 $HOME/paru && cd $HOME/paru && makepkg -s -i -c --noconfirm && rm -rf $HOME/paru'
+read -rp 'Do you want to install paru [Aur helper][Y/N]: ' PARUYN
+if [[ "$PARUYN" =~ ^[Yy]$ ]]; then
+	if [ -z "$USERN" ]; then read -rp 'Tell username you setted back [This is due to error last time] : ' USERN; else true; fi
+	sudo -H -u "$USERN" bash -c 'if [[ -f "$HOME/paru" ]]; then true; else git clone --depth=1 https://aur.archlinux.org/paru-bin.git $HOME/paru; fi'
+	sudo -H -u "$USERN" bash -c 'chmod -R 777 $HOME/paru && cd $HOME/paru && makepkg -s -i -c --noconfirm && rm -rf $HOME/paru'
 fi
 
 # Add chromium pacman config
@@ -59,58 +51,21 @@ else
 	echo -e 'Server = https://download.opensuse.org/repositories/home:/ungoogled_chromium/Arch/$arch' | tee -a /etc/pacman.conf
 fi
 
-# TWEAK PACMAN
-sed -i '93s/#\[/\[/' /etc/pacman.conf
-sed -i '94s/#I/I/' /etc/pacman.conf
-sed -i 's/#Color/Color/g' /etc/pacman.conf
-sed -i 's/#VerbosePkgLists/VerbosePkgLists/g' /etc/pacman.conf
+# PACMAN
+pacman-key --init && pacman-key --populate archlinux
+sed -i '93s|#\[|\[|g' /etc/pacman.conf && sed -i '94s|#I|I|g' /etc/pacman.conf # Multilib
+sed -i 's|#Color|Color|g' /etc/pacman.conf                                     # Color
+sed -i 's|#VerbosePkgLists|VerbosePkgLists|g' /etc/pacman.conf                 # VerbosePkgLists
 
-# GRUB-TWEAKS
-sed -i 's/#GRUB_DISABLE_SUBMENU=y/GRUB_DISABLE_SUBMENU=y/g' /etc/default/grub
-sed -i 's/GRUB_TIMEOUT=5/GRUB_TIMEOUT=1/g' /etc/default/grub
-sed -i 's/#GRUB_COLOR_NORMAL/GRUB_COLOR_NORMAL/g' /etc/default/grub
-sed -i 's/#GRUB_COLOR_HIGHLIGHT/GRUB_COLOR_HIGHLIGHT/blue"/g' /etc/default/grub
-sed -i 's/GRUB_DISABLE_RECOVERY=true/GRUB_DISABLE_RECOVERY=false/g' /etc/default/grub
-
-# Enable Hibernation
-br && read -rp "Do you want to enable hibernation support?[Edit script if system is encrypted][Y/N]: " HIBERYN
-if [ "${HIBERYN}" = "y" ]; then
-	lsblk -af && br
-	read -rp 'Please write name of swap partition [E.g /dev/sda2]: ' SWAPID
-	read -rp "SWAP is in $SWAPID. Is it correct? [Y/N]: " SWAPCONFIRM
-	if [ "${SWAPCONFIRM}" = "y" ] || [ "${SWAPCONFIRM}" = "Y" ]; then
-		SWAP_GRUB="$(blkid "$SWAPID" | cut -d '"' -f2)"
-		TEMP2="GRUB_CMDLINE_LINUX_DEFAULT=\"i8042.nopnp nowatchdog loglevel=3 resume=UUID=$SWAP_GRUB\""
-		sed -i "s/GRUB_CMDLINE_LINUX_DEFAULT=.*/$TEMP2/g" /etc/default/grub
-		sed -i "s/HOOKS=(base.*/HOOKS=(base udev autodetect modconf block filesystems keyboard resume fsck)/g" /etc/mkinitcpio.conf
-	else
-		exit
-	fi
-fi
-
-# Networkmanager
-pacman -Sy --needed --noconfirm networkmanager
-systemctl enable --now NetworkManager
-
-# Fancontrol
-pacman -S --needed --noconfirm lm_sensors
-curl -L https://raw.githubusercontent.com/Jrchintu/CDN/main/ARCH/XTRA/fancontrol >/etc/fancontrol
-systemctl enable --now fancontrol
-
-# Thermald [Need /etc/thermald/thermald-config.xml]
-pacman -S --needed --noconfirm thermald
-systemctl enable --now thermald
+# NetworkManager
+pacman -Sy --needed --noconfirm networkmanager && systemctl enable --now NetworkManager
 
 # Firewall
-pacman -S --needed --noconfirm ufw
-systemctl enable --now ufw
-ufw default deny incoming
-ufw default allow outgoing
-ufw enable
+pacman -S --needed --noconfirm ufw && systemctl enable --now ufw
+ufw default deny incoming && ufw default allow outgoing && ufw enable
 
 # Bluetooth
-pacman -S --needed --noconfirm bluez blueman
-systemctl enable --now bluetooth
+pacman -S --needed --noconfirm bluez blueman && systemctl enable --now bluetooth
 
 # Pipewire/Audio
 pacman -S --needed --noconfirm pavucontrol pipewire{,-pulse,-media-session,-jack}
@@ -118,3 +73,22 @@ systemctl enable --now --user pipewire{,-pulse,-media-session}
 
 # Fstrim
 systemctl enable --now fstrim fstrim.timer
+
+# Restrict /boot permissions
+chmod -R 700 /boot
+
+# GRUB
+grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Arch && grub-mkconfig -o /boot/grub/grub.cfg
+sed -i 's|GRUB_TIMEOUT=5|GRUB_TIMEOUT=1|g' /etc/default/grub
+sed -i 's|#GRUB_DISABLE_SUBMENU=y|GRUB_DISABLE_SUBMENU=y|g' /etc/default/grub
+sed -i 's|GRUB_DISABLE_RECOVERY=true|GRUB_DISABLE_RECOVERY=false|g' /etc/default/grub
+
+# Enable Hibernation
+br && read -rp "Do you want to enable hibernation support? [Edit script if system is encrypted][Y/N]: " HIBERYN
+if [[ "${HIBERYN}" =~ ^[Yy]$ ]]; then
+	lsblk && br && read -rp 'Please write name of swap partition [E.g /dev/sda2]: ' SWAPPART
+		SWAPUUID="$(blkid "$SWAPPART" | cut -d '"' -f2)"
+		TEMP2="GRUB_CMDLINE_LINUX_DEFAULT=\"i8042.nopnp nowatchdog loglevel=3 resume=UUID=$SWAPUUID\""
+		sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=.*|$TEMP2|g" /etc/default/grub
+		sed -i "s|HOOKS=(base.*|HOOKS=(base udev autodetect modconf block filesystems keyboard resume fsck)|g" /etc/mkinitcpio.conf
+fi
