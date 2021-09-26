@@ -90,9 +90,9 @@ if [[ "${HIBERYN}" =~ ^[Yy]$ ]]; then
 	dd if=/dev/zero of=/swapfile count=4096 bs=1MiB status=progress && chmod -R 600 /swapfile
 	echo -e '\n# Swap\n/swapfile    swap    swap    sw    0    0' >>/etc/fstab
 	sed -i "s|HOOKS=(base.*|HOOKS=(base udev autodetect modconf block filesystems keyboard uresume fsck)|g" /etc/mkinitcpio.conf
+	curl -LO https://raw.githubusercontent.com/Jrchintu/Arch/main/Config/suspend.conf >/etc/suspend.conf
 	br && lsblk && read -rp "Write the name of root partation [E.g /dev/sda3]: " ROOTDIR
 	ROFFSET="$(swap-offset /swapfile | cut -d'=' -f2 | awk '{$1=$1};1')"
 	echo -e "resume device = $ROOTDIR\nresume offset = $ROFFSET" >>/etc/suspend.conf
-	curl -LO ###URI### >>/etc/suspend.conf
 	mkinitcpio -P
 fi
