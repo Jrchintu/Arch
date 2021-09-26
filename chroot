@@ -65,7 +65,7 @@ pacman -S --needed --noconfirm ufw && systemctl enable --now ufw
 ufw default deny incoming && ufw default allow outgoing && ufw enable
 
 # Bluetooth
-pacman -S --needed --noconfirm bluez blueman && systemctl enable --now bluetooth
+pacman -S --needed --noconfirm bluez blueman
 
 # Pipewire/Audio
 pacman -S --needed --noconfirm pavucontrol pipewire{,-pulse,-media-session,-jack}
@@ -73,9 +73,6 @@ systemctl enable --now --user pipewire{,-pulse,-media-session}
 
 # Fstrim
 systemctl enable --now fstrim fstrim.timer
-
-# Restrict /boot permissions
-chmod -R 700 /boot
 
 # GRUB
 grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Arch && grub-mkconfig -o /boot/grub/grub.cfg
@@ -87,8 +84,8 @@ sed -i 's|GRUB_DISABLE_RECOVERY=true|GRUB_DISABLE_RECOVERY=false|g' /etc/default
 br && read -rp "Do you want to enable hibernation support? [Edit script if system is encrypted][Y/N]: " HIBERYN
 if [[ "${HIBERYN}" =~ ^[Yy]$ ]]; then
 	lsblk && br && read -rp 'Please write name of swap partition [E.g /dev/sda2]: ' SWAPPART
-		SWAPUUID="$(blkid "$SWAPPART" | cut -d '"' -f2)"
-		TEMP2="GRUB_CMDLINE_LINUX_DEFAULT=\"i8042.nopnp nowatchdog loglevel=3 resume=UUID=$SWAPUUID\""
-		sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=.*|$TEMP2|g" /etc/default/grub
-		sed -i "s|HOOKS=(base.*|HOOKS=(base udev autodetect modconf block filesystems keyboard resume fsck)|g" /etc/mkinitcpio.conf
+	SWAPUUID="$(blkid "$SWAPPART" | cut -d '"' -f2)"
+	TEMP2="GRUB_CMDLINE_LINUX_DEFAULT=\"i8042.nopnp nowatchdog loglevel=3 resume=UUID=$SWAPUUID\""
+	sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=.*|$TEMP2|g" /etc/default/grub
+	sed -i "s|HOOKS=(base.*|HOOKS=(base udev autodetect modconf block filesystems keyboard resume fsck)|g" /etc/mkinitcpio.conf
 fi

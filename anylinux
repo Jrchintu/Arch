@@ -21,10 +21,11 @@ mv -i ./.bashrc /home/"$SUSER"/
 # check distro type [debian,arch]
 DISTRO="$(awk '/^ID=/' /etc/*-release | awk -F'=' '{ print tolower($2) }')"
 if [ "$DISTRO" = 'arch' ]; then
-	which pacman && echo arch
+	which pacman &>>/dev/null || exit
 	pacman -Syu # Arch btw
+
 elif [ "$DISTRO" = 'debian' ]; then
-	which apt-get && echo debian || which apt && echo debian
+	which apt &>>/dev/null || exit
 	read -rep 'Do you want AOSP env setup ? [Y/N]:' aospenv
 	if [ "${aospenv}" = "y" ] || [ "${aospenv}" = "Y" ]; then
 		# ENV SETUP
@@ -83,8 +84,3 @@ git config --global user.name "Jrchintu"
 git config --global user.email "harrypetersun@outlook.com"
 git config --global color.ui auto
 git config --global core.editor nano
-
-# Redshift
-if command -v redshift >/dev/null; then
-	redshift -l "$(curl -s "https://location.services.mozilla.com/v1/geolocate?key=geoclue" | awk 'OFS=":" {print $3,$5}' | tr -d ',}')" -t 5700:3600 -g 0.8 -m randr -v
-fi

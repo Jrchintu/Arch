@@ -14,6 +14,10 @@ pacman -R $(pacman -Qdtq)
 pacman -Rcns xfce4-appfinder xterm rsh-server telnet-server
 paru -Sc
 
+# .old/.tmp files
+for L in $(find -name *.old); do rm -rf $PWD/$L; done && unset L
+for M in $(find -name *.tmp); do rm -rf $PWD/$M; done && unset M
+
 # Junk Themes
 JUNKTHEME=(
 	Adept

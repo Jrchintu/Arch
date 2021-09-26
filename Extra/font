@@ -1,0 +1,84 @@
+#!/usr/bin/env bash
+# CREDITS: https://wiki.manjaro.org/index.php/Improve_Font_Rendering
+# Download some nice font
+pacman -S --needed noto-fonts noto-fonts-emoji ttf-liberation cantarell-fonts
+
+# Some var
+export SUSER="${SUDO_USER:-${USER}}"
+noroot() {
+	sudo -H -u "$SUSER" bash -c "$1"
+}
+
+# Make etc/fonts/local.conf
+echo -e '<?xml version="1.0"?>
+<!DOCTYPE fontconfig SYSTEM "fonts.dtd">
+<fontconfig>
+  <match target="font">
+    <edit mode="assign" name="hinting">
+      <bool>true</bool>
+    </edit>
+    <edit mode="assign" name="autohint">
+      <bool>false</bool>
+    </edit>
+    <edit mode="assign" name="hintstyle">
+      <const>hintslight</const>
+    </edit>
+    <edit mode="assign" name="rgba">
+      <const>rgb</const>
+    </edit>
+    <edit mode="assign" name="lcdfilter">
+      <const>lcddefault</const>
+    </edit>
+    <edit mode="assign" name="antialias">
+      <bool>true</bool>
+    </edit>
+  </match>
+   <match>
+      <edit mode="prepend" name="family">
+         <string>Favourite Sans</string>
+      </edit>
+   </match>
+   <match target="pattern">
+      <test qual="any" name="family">
+         <string>serif</string>
+      </test>
+      <edit name="family" mode="assign" binding="same">
+         <string>Liberation Serif</string>
+      </edit>
+   </match>
+   <match target="pattern">
+      <test qual="any" name="family">
+         <string>Liberation Sans</string>
+      </test>
+      <edit name="family" mode="assign" binding="same">
+         <string>Liberation Sans</string>
+      </edit>
+   </match>
+   <match target="pattern">
+      <test qual="any" name="family">
+         <string>Monospace</string>
+      </test>
+      <edit name="family" mode="assign" binding="same">
+         <string>Liberation Mono</string>
+      </edit>
+   </match>
+</fontconfig>' >/etc/fonts/local.conf
+
+# Make .Xresources
+mkdir -pv /etc/X11/Xresources
+echo -e 'Xft.lcdfilter: lcddefault
+Xft.antialias: 1
+Xft.autohint: 0
+Xft.hinting: 1
+Xft.dpi: 96
+Xft.hintstyle: hintfull
+Xft.rgba: rgb' >/etc/X11/Xresources/sharp-fonts
+xrdb -merge /etc/X11/Xresources/sharp-fonts
+
+# Fix fonts
+ln -s /usr/share/fontconfig/conf.avail/10-sub-pixel-rgb.conf /etc/fonts/conf.d/
+ln -s /usr/share/fontconfig/conf.avail/11-lcdfilter-default.conf /etc/fonts/conf.d/
+ln -s /usr/share/fontconfig/conf.avail/10-hinting-full.conf /etc/fonts/conf.d/
+
+# Font config
+fc-cache -rsfv

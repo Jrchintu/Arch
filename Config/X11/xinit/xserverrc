@@ -1,0 +1,2 @@
+#!/bin/sh
+exec /usr/bin/X -nolisten tcp -nolisten local "$@" vt$XDG_VTNR -keeptty >~/.local/share/xorg/xorgerr.log 2>&1
