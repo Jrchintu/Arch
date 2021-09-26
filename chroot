@@ -80,12 +80,19 @@ sed -i 's|GRUB_TIMEOUT=5|GRUB_TIMEOUT=1|g' /etc/default/grub
 sed -i 's|#GRUB_DISABLE_SUBMENU=y|GRUB_DISABLE_SUBMENU=y|g' /etc/default/grub
 sed -i 's|GRUB_DISABLE_RECOVERY=true|GRUB_DISABLE_RECOVERY=false|g' /etc/default/grub
 
+# Fix touchpad
+TEMP2="GRUB_CMDLINE_LINUX_DEFAULT=\"i8042.nopnp nowatchdog loglevel=3\""
+sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=.*|$TEMP2|g" /etc/default/grub
+
 # Enable Hibernation
-br && read -rp "Do you want to enable hibernation support? [Edit script if system is encrypted][Y/N]: " HIBERYN
+br && read -rp "Do you want to enable hibernation support? [SWAPFILE=4GB(Default)][Edit script if system is encrypted][Y/N]: " HIBERYN
 if [[ "${HIBERYN}" =~ ^[Yy]$ ]]; then
-	lsblk && br && read -rp 'Please write name of swap partition [E.g /dev/sda2]: ' SWAPPART
-	SWAPUUID="$(blkid "$SWAPPART" | cut -d '"' -f2)"
-	TEMP2="GRUB_CMDLINE_LINUX_DEFAULT=\"i8042.nopnp nowatchdog loglevel=3 resume=UUID=$SWAPUUID\""
-	sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=.*|$TEMP2|g" /etc/default/grub
-	sed -i "s|HOOKS=(base.*|HOOKS=(base udev autodetect modconf block filesystems keyboard resume fsck)|g" /etc/mkinitcpio.conf
+	dd if=/dev/zero of=/swapfile count=4096 bs=1MiB status=progress && chmod -R 600 /swapfile
+	echo -e '\n# Swap\n/swapfile    swap    swap    sw    0    0' >>/etc/fstab
+	sed -i "s|HOOKS=(base.*|HOOKS=(base udev autodetect modconf block filesystems keyboard uresume fsck)|g" /etc/mkinitcpio.conf
+	br && lsblk && read -rp "Write the name of root partation [E.g /dev/sda3]: " ROOTDIR
+	ROFFSET="$(swap-offset /swapfile | cut -d'=' -f2 | awk '{$1=$1};1')"
+	echo -e "resume device = $ROOTDIR\nresume offset = $ROFFSET" >>/etc/suspend.conf
+	curl -LO ###URI### >>/etc/suspend.conf
+	mkinitcpio -P
 fi
