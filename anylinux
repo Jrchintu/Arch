@@ -24,7 +24,7 @@ if [ "$DISTRO" = 'arch' ]; then
 	which pacman &>>/dev/null || exit
 	pacman -Syu # Arch btw
 
-elif [ "$DISTRO" = 'debian' ]; then
+elif [ "$DISTRO" = 'debian' ] || [ "$DISTRO" = 'ubuntu' ]; then
 	which apt &>>/dev/null || exit
 	read -rep 'Do you want AOSP env setup ? [Y/N]:' aospenv
 	if [ "${aospenv}" = "y" ] || [ "${aospenv}" = "Y" ]; then
