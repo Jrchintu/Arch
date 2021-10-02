@@ -132,7 +132,7 @@ mounter() {
 }
 
 base() {
-	br && read -rp "Do you want to use your old saved packages directory [FOR PRO USER ONLY][Y/N]: " PACBDIR
+	br && read -rp "Do you want to use your old saved packages directory [FOR PRO USER ONLY] [Y/N]: " PACBDIR
 	if [[ "$PACBDIR" =~ ^[Yy]$ ]]; then
 		pacstrap -U /mnt /mnt/home/PKG/*base-2-2*xz || pacstrap /mnt base
 		sed -i 's|#CacheDir    = /var/cache/pacman/pkg/|CacheDir    = /home/PKG/|g' /mnt/etc/pacman.conf
@@ -149,24 +149,27 @@ chrooot() {
 
 de() {
 	br && echo -e "Choose a Desktop Environment to install: \n"
-	echo -e "1. GNOME \n2. DEEPIN \n3. KDE \n4. XFCE [Recommended]"
-	read -rp "DE[1-4]: " DESKTOPENV
+	echo -e "1. GNOME \n2. DEEPIN \n3. KDE \n4. XFCE \n5. LXQT"
+	read -rp "DE[1-5]: " DESKTOPENV
 	if [[ "$DESKTOPENV" = '1' ]]; then
 		pacstrap /mnt gnome gnome-tweaks papirus-icon-theme
 		arch-chroot /mnt bash -c "systemctl enable --now gdm && exit"
 		sed -i 's/#W/W/' /mnt/etc/gdm/custom.conf #Wayland dont work good with nvidia
-	elif [[ "$DESKTOPENV" = '1' ]]; then
+	elif [[ "$DESKTOPENV" = '2' ]]; then
 		pacstrap /mnt deepin lightdm
 		arch-chroot /mnt bash -c "systemctl enable --now lightdm && exit"
-	elif [[ "$DESKTOPENV" = '1' ]]; then
-		pacstrap /mnt xorg-server plasma sddm
+	elif [[ "$DESKTOPENV" = '3' ]]; then
+		pacstrap /mnt xorg-server plasma sddm thunar
 		arch-chroot /mnt bash -c "systemctl enable --now sddm && exit"
-	elif [[ "$DESKTOPENV" = '1' ]]; then
+	elif [[ "$DESKTOPENV" = '4' ]]; then
 		pacstrap /mnt xfce4 xorg-server lightdm lightdm-gtk-greeter gtk-engine-murrine gtk-engines xfce4-screenshooter \
 			xfce4-whiskermenu-plugin xfce4-pulseaudio-plugin xfce4-battery-plugin network-manager-applet xdg-desktop-portal \
 			gvfs gvfs-mtp mtpfs thunar-media-tags-plugin thunar-archive-plugin accountsservice
 		arch-chroot /mnt bash -c "systemctl enable --now lightdm && exit"
 		sed -i 's|#greeter-hide-users=false|greeter-hide-users=true|g' /mnt/etc/lightdm/lightdm.conf
+	elif [[ "$DESKTOPENV" = '5' ]]; then
+		pacstrap /mnt xorg-server network-manager-applet lxqt xdg-utils sddm libpulse libstatgrab libsysstat lm_sensors
+		arch-chroot /mnt bash -c "systemctl enable --now sddm && exit"
 	fi
 }
 
@@ -192,6 +195,7 @@ main() {
 clear && ascii && br
 main
 sed -i 's|CacheDir|#CacheDir|g' /mnt/etc/pacman.conf
+sync
 umount -fvR /mnt && wait
 umount -fvR /mnt/home && wait
 umount -fvR /mnt/boot/efi && wait

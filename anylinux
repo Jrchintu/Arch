@@ -1,16 +1,12 @@
 #!/usr/bin/env bash
 clear && LC_ALL=C && LANG=C
 SUSER="${SUDO_USER:-${USER}}"
-noroot() {
-	sudo -H -u "$SUSER" bash -c "$1"
-}
+nosu() { sudo -H -u "$SUSER" bash -c "$1"; }
 
 # Check Internet
 if [ "$EUID" -ne 0 ]; then
 	echo "Please run as root" && exit
-	if : >/dev/tcp/8.8.8.8/53; then
-		echo ''
-	else echo 'offline Please connect...' && exit; fi
+	if : >/dev/tcp/8.8.8.8/53; then true; else echo 'Offline Please connect...' && exit; fi
 fi
 
 # Replace bashrc
@@ -38,11 +34,7 @@ elif [ "$DISTRO" = 'debian' ]; then
 			xsltproc zlib1g-dev unzip openjdk-8-jdk libssl-dev python
 		sudo apt autoremove --purge -y
 		curl https://storage.googleapis.com/git-repo-downloads/repo >./repo
-		sudo mv repo /usr/bin/repo && sudo chmod a+x /usr/bin/repo
-		PATH="/usr/bin/repo:$PATH"
-		#git clone --depth=1 https://github.com/akhilnarang/scripts.git scripts
-		#cd scripts && sudo bash setup/android_build_env.sh && cd .. && rm -rf scripts
-
+		sudo mv repo /usr/bin/repo && sudo chmod a+x /usr/bin/repo && PATH="/usr/bin/repo:$PATH"
 		# BASHRC
 		cat <<EOF >>/home/"$SUSER"/.bashrc
 export USE_CCACHE=1
@@ -76,7 +68,7 @@ EOF
 		fi
 	fi
 else
-	echo 'I am retard now'
+	echo 'I am retard now. Its neither debian nor Arch btw'
 fi
 
 # Git config

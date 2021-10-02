@@ -113,62 +113,62 @@ script_checks() {
 
 sysctl_hardening() {
 	## Sysctl
-	read -r -p "Harden the kernel with sysctl? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#sysctl) (y/n) " sysctl
+	read -rp "Harden the kernel with sysctl? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#sysctl) (y/n) " sysctl
 	if [ "${sysctl}" = "y" ]; then
 		# Hide kernel symbols in /proc/kallsyms.
-		read -r -p "Hide kernel symbols in /proc/kallsyms? (y/n) " kallsyms
+		read -rp "Hide kernel symbols in /proc/kallsyms? (y/n) " kallsyms
 		if [ "${kallsyms}" = "y" ]; then
 			echo "kernel.kptr_restrict=2" >/etc/sysctl.d/kptr_restrict.conf
 		fi
 
 		# Restrict dmesg to root.
-		read -r -p "Restrict dmesg to root only? (y/n) " dmesg
+		read -rp "Restrict dmesg to root only? (y/n) " dmesg
 		if [ "${dmesg}" = "y" ]; then
 			echo "kernel.dmesg_restrict=1" >/etc/sysctl.d/dmesg_restrict.conf
 		fi
 
 		# Harden BPF JIT compiler.
-		read -r -p "Harden the BPF JIT compiler? (y/n) " jit
+		read -rp "Harden the BPF JIT compiler? (y/n) " jit
 		if [ "${jit}" = "y" ]; then
 			echo "kernel.unprivileged_bpf_disabled=1
 net.core.bpf_jit_harden=2" >/etc/sysctl.d/harden_bpf.conf
 		fi
 
 		# Restrict ptrace to root.
-		read -r -p "Restrict ptrace to root only? (y/n) " ptrace
+		read -rp "Restrict ptrace to root only? (y/n) " ptrace
 		if [ "${ptrace}" = "y" ]; then
 			echo "kernel.yama.ptrace_scope=2" >/etc/sysctl.d/ptrace_scope.conf
 		fi
 
 		# Disable kexec.
-		read -r -p "Disable kexec? (y/n) " kexec
+		read -rp "Disable kexec? (y/n) " kexec
 		if [ "${kexec}" = "y" ]; then
 			echo "kernel.kexec_load_disabled=1" >/etc/sysctl.d/kexec.conf
 		fi
 
 		# Harden the TCP/IP stack.
-		read -r -p "Harden the TCP/IP stack? (y/n) " tcp_ip_stack_hardening
+		read -rp "Harden the TCP/IP stack? (y/n) " tcp_ip_stack_hardening
 		if [ "${tcp_ip_stack_hardening}" = "y" ]; then
 			# Enable TCP syncookies.
-			read -r -p "Enable TCP syncookies? (y/n) " tcp_syncookies
+			read -rp "Enable TCP syncookies? (y/n) " tcp_syncookies
 			if [ "${tcp_syncookies}" = "y" ]; then
 				echo "net.ipv4.tcp_syncookies=1" >>/etc/sysctl.d/tcp_hardening.conf
 			fi
 
 			# Protect against time-wait assassination.
-			read -r -p "Protect against time-wait assassination? (y/n) " tcp_timewait_assassination
+			read -rp "Protect against time-wait assassination? (y/n) " tcp_timewait_assassination
 			if [ "${tcp_timewait_assassination}" = "y" ]; then
 				echo "net.ipv4.tcp_rfc1337=1" >>/etc/sysctl.d/tcp_hardening.conf
 			fi
 
 			# Enable reverse path filtering.
-			read -r -p "Enable reverse path filtering (rp_filter)? (y/n) " enable_rp_filter
+			read -rp "Enable reverse path filtering (rp_filter)? (y/n) " enable_rp_filter
 			if [ "${enable_rp_filter}" = "y" ]; then
 				echo -e "net.ipv4.conf.default.rp_filter=1\nnet.ipv4.conf.all.rp_filter=1" >>/etc/sysctl.d/tcp_hardening.conf
 			fi
 
 			# Disable ICMP redirect acceptance.
-			read -r -p "Disable ICMP redirect acceptance? (y/n) " disable_icmp_redirect_acceptance
+			read -rp "Disable ICMP redirect acceptance? (y/n) " disable_icmp_redirect_acceptance
 			if [ "${disable_icmp_redirect_acceptance}" = "y" ]; then
 				echo "net.ipv4.conf.all.accept_redirects=0
 net.ipv4.conf.default.accept_redirects=0
@@ -179,45 +179,45 @@ net.ipv6.conf.default.accept_redirects=0" >>/etc/sysctl.d/tcp_hardening.conf
 			fi
 
 			# Disable ICMP redirect sending.
-			read -r -p "Disable ICMP redirect sending? (y/n) " disable_icmp_redirect_sending
+			read -rp "Disable ICMP redirect sending? (y/n) " disable_icmp_redirect_sending
 			if [ "${disable_icmp_redirect_sending}" = "y" ]; then
 				echo "net.ipv4.conf.all.send_redirects=0
 net.ipv4.conf.default.send_redirects=0" >>/etc/sysctl.d/tcp_hardening.conf
 			fi
 
 			# Ignore ICMP requests.
-			read -r -p "Ignore ICMP requests? (y/n) " ignore_icmp
+			read -rp "Ignore ICMP requests? (y/n) " ignore_icmp
 			if [ "${ignore_icmp}" = "y" ]; then
 				echo "net.ipv4.icmp_echo_ignore_all=1" >>/etc/sysctl.d/tcp_hardening.conf
 			fi
 		fi
 
 		# Improve ASLR for mmap.
-		read -r -p "Improve ASLR effectiveness for mmap? (y/n) " improve_aslr
+		read -rp "Improve ASLR effectiveness for mmap? (y/n) " improve_aslr
 		if [ "${improve_aslr}" = "y" ]; then
 			echo -e "vm.mmap_rnd_bits=32\nvm.mmap_rnd_compat_bits=16" >/etc/sysctl.d/mmap_aslr.conf
 		fi
 
 		# Disable TCP timestamps
-		read -r -p "Disable TCP timestamps? (y/n) " timestamps
+		read -rp "Disable TCP timestamps? (y/n) " timestamps
 		if [ "${timestamps}" = "y" ]; then
 			echo "net.ipv4.tcp_timestamps=0" >/etc/sysctl.d/tcp_timestamps.conf
 		fi
 
 		# Disable the SysRq key.
-		read -r -p "Disable the SysRq key? (y/n) " disable_sysrq
+		read -rp "Disable the SysRq key? (y/n) " disable_sysrq
 		if [ "${disable_sysrq}" = "y" ]; then
 			echo "kernel.sysrq=0" >/etc/sysctl.d/sysrq.conf
 		fi
 
 		# Disable unprivileged user namespaces.
-		read -r -p "Disable unprivileged user namespaces? (y/n) " disable_unprivileged_userns
+		read -rp "Disable unprivileged user namespaces? (y/n) " disable_unprivileged_userns
 		if [ "${disable_unprivileged_userns}" = "y" ]; then
 			echo "kernel.unprivileged_userns_clone=0" >/etc/sysctl.d/unprivileged_users_clone.conf
 		fi
 
 		# Disable TCP SACK.
-		read -r -p "Disable TCP SACK? (y/n) " disable_sack
+		read -rp "Disable TCP SACK? (y/n) " disable_sack
 		if [ "${disable_sack}" = "y" ]; then
 			echo "net.ipv4.tcp_sack=0" >/etc/sysctl.d/tcp_sack.conf
 		fi
@@ -226,7 +226,7 @@ net.ipv4.conf.default.send_redirects=0" >>/etc/sysctl.d/tcp_hardening.conf
 
 boot_parameter_hardening() {
 	## Boot Parameters.
-	read -r -p "Harden the kernel through boot parameters? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#boot_parameters) (y/n) " bootparams
+	read -rp "Harden the kernel through boot parameters? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#boot_parameters) (y/n) " bootparams
 	if [ "${bootparams}" = "y" ]; then
 		# GRUB-specific configuration.
 		if [ "${use_grub}" = "y" ]; then
@@ -240,7 +240,7 @@ boot_parameter_hardening() {
 
 		# Require kernel modules to be signed with a valid key.
 		# This prevents out-of-tree modules from being loaded so it's separate from the bulk of the hardening parameters.
-		read -r -p "Require kernel modules to be signed with a valid key? (y/n) " require_signed_modules
+		read -rp "Require kernel modules to be signed with a valid key? (y/n) " require_signed_modules
 		if [ "${require_signed_modules}" = "y" ]; then
 			# GRUB-specific configuration.
 			if [ "${use_grub}" = "y" ]; then
@@ -254,7 +254,7 @@ boot_parameter_hardening() {
 		fi
 
 		# Disable IPv6.
-		read -r -p "Do you want to disable IPv6? (y/n) " disable_ipv6
+		read -rp "Do you want to disable IPv6? (y/n) " disable_ipv6
 		if [ "${disable_ipv6}" = "y" ]; then
 			if [ "${use_grub}" = "y" ]; then
 				# shellcheck disable=SC2016
@@ -273,7 +273,7 @@ boot_parameter_hardening() {
 
 hidepid() {
 	## Hidepid.
-	read -r -p "Use hidepid to hide other users' processes? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#hidepid) (y/n) " hidepid
+	read -rp "Use hidepid to hide other users' processes? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#hidepid) (y/n) " hidepid
 	if [ "${hidepid}" = "y" ]; then
 		# Enable hidepid.
 		echo "proc /proc proc nosuid,nodev,noexec,hidepid=2,gid=proc 0 0" >>/etc/fstab
@@ -295,7 +295,7 @@ hidepid() {
 
 disable_nf_conntrack_helper() {
 	## Disable Netfilter connection tracking helper.
-	read -r -p "Disable the Netfilter automatic conntrack helper assignment? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#nf_conntrack_helper) (y/n) " disable_conntrack_helper
+	read -rp "Disable the Netfilter automatic conntrack helper assignment? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#nf_conntrack_helper) (y/n) " disable_conntrack_helper
 	if [ "${disable_conntrack_helper}" = "y" ]; then
 		echo "options nf_conntrack nf_conntrack_helper=0" >/etc/modprobe.d/no-conntrack-helper.conf
 	fi
@@ -303,7 +303,7 @@ disable_nf_conntrack_helper() {
 
 install_linux_hardened() {
 	## Linux-Hardened
-	read -r -p "Install linux-hardened? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#linux-hardened) (y/n) " linux_hardened
+	read -rp "Install linux-hardened? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#linux-hardened) (y/n) " linux_hardened
 	if [ "${linux_hardened}" = "y" ]; then
 		# Install linux-hardened.
 		pacman -S --noconfirm -q linux-hardened linux-hardened-headers
@@ -315,7 +315,7 @@ install_linux_hardened() {
 
 apparmor() {
 	## Apparmor
-	read -r -p "Enable apparmor? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#MAC) (y/n) " enable_apparmor
+	read -rp "Enable apparmor? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#MAC) (y/n) " enable_apparmor
 	if [ "${enable_apparmor}" = "y" ]; then
 		# Check if apparmor is installed and if not, install it
 		if ! pacman -Qq apparmor &>/dev/null; then
@@ -340,7 +340,7 @@ apparmor() {
 
 get_firejail() {
 	## Firejail
-	read -r -p "Install firejail? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#sandboxes) (y/n) " install_firejail
+	read -rp "Install firejail? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#sandboxes) (y/n) " install_firejail
 	if [ "${install_firejail}" = "y" ]; then
 		# Installs firejail if it isn't already.
 		if ! pacman -Qq firejail &>/dev/null; then
@@ -352,13 +352,13 @@ get_firejail() {
 restrict_root() {
 	## Restricting root
 	# Clear /etc/securetty
-	read -r -p "Clear /etc/securetty? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#securetty) (y/n) " securetty
+	read -rp "Clear /etc/securetty? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#securetty) (y/n) " securetty
 	if [ "${securetty}" = "y" ]; then
 		echo "" >/etc/securetty
 	fi
 
 	# Restricting su to users in the wheel group.
-	read -r -p "Restrict su to users in the wheel group? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#restricting_su) (y/n) " restrict_su
+	read -rp "Restrict su to users in the wheel group? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#restricting_su) (y/n) " restrict_su
 	if [ "${restrict_su}" = "y" ]; then
 		# Restricts su by editing files in /etc/pam.d/
 		sed -i 's/#auth		required	pam_wheel.so use_uid/auth		required	pam_wheel.so use_uid/' /etc/pam.d/su
@@ -366,7 +366,7 @@ restrict_root() {
 	fi
 
 	# Lock the root account.
-	read -r -p "Lock the root account? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#locking_root) (y/n) " lock_root_account
+	read -rp "Lock the root account? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#locking_root) (y/n) " lock_root_account
 	if [ "${lock_root_account}" = "y" ]; then
 		passwd -l root
 	fi
@@ -374,7 +374,7 @@ restrict_root() {
 	# Checks if SSH is installed before asking.
 	if [ -x "$(command -v ssh)" ]; then
 		# Deny root login via SSH.
-		read -r -p "Deny root login via SSH? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#denying_root_login_ssh) (y/n) " deny_root_ssh
+		read -rp "Deny root login via SSH? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#denying_root_login_ssh) (y/n) " deny_root_ssh
 		if [ "${deny_root_ssh}" = "y" ]; then
 			echo 'PermitRootLogin no' >>/etc/ssh/sshd_config
 		fi
@@ -383,7 +383,7 @@ restrict_root() {
 
 firewall() {
 	## Firewall
-	read -r -p "Install and configure GUFW[GUI]+UFW? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#firewalls) (y/n) " install_ufw
+	read -rp "Install and configure GUFW[GUI]+UFW? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#firewalls) (y/n) " install_ufw
 	if [ "${install_ufw}" = "y" ]; then
 		# Installs ufw if it isn't already.
 		if ! pacman -Qq ufw &>/dev/null; then
@@ -401,7 +401,7 @@ firewall() {
 
 setup_tor() {
 	## Tor.
-	read -r -p "Do you want to install Tor? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#tor) (y/n) " install_tor
+	read -rp "Do you want to install Tor? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#tor) (y/n) " install_tor
 	if [ "${install_tor}" = "y" ]; then
 		# Installs Tor if it isn't already.
 		if ! pacman -Qq tor &>/dev/null; then
@@ -409,13 +409,13 @@ setup_tor() {
 		fi
 
 		# Disable network llmnr.
-		read -r -p "Disable LLMNR in /etc/systemd/resolved.conf? (y/n) " kallsyms
+		read -rp "Disable LLMNR in /etc/systemd/resolved.conf? (y/n) " kallsyms
 		if [ "${kallsyms}" = "y" ]; then
 			sed -i 's|#LLMNR=yes|LLMNR=no|g' /etc/systemd/resolved.conf
 		fi
 
 		# Force Pacman through Tor
-		read -r -p "Force pacman through Tor? (See: https://theprivacyguide1.github.io/linux_hardening_guide.html#stream_isolation) (y/n) " pacman_tor
+		read -rp "Force pacman through Tor? (See: https://theprivacyguide1.github.io/linux_hardening_guide.html#stream_isolation) (y/n) " pacman_tor
 		if [ "${pacman_tor}" = "y" ]; then
 			# Configure a SocksPort for Pacman.
 			echo -e '''\n# Pacman SocksPort\nSocksPort 9062''' >>/etc/tor/torrc
@@ -432,7 +432,7 @@ setup_tor() {
 
 configure_hostname() {
 	## Change hostname to a generic one.
-	read -r -p "Change hostname to 'host'? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#hostnames) (y/n) " hostname
+	read -rp "Change hostname to 'host'? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#hostnames) (y/n) " hostname
 	if [ "${hostname}" = "y" ]; then
 		hostnamectl set-hostname host
 	fi
@@ -440,19 +440,19 @@ configure_hostname() {
 
 block_wireless_devices() {
 	## Wireless devices
-	read -r -p "Block all wireless devices with rfkill? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#bluetooth) (y/n) " block_wireless
+	read -rp "Block all wireless devices with rfkill? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#bluetooth) (y/n) " block_wireless
 	if [ "${block_wireless}" = "y" ]; then
 		# Uses rfkill to block all wireless devices.
 		rfkill block all
 
 		# Unblock WiFi.
-		read -r -p "Unblock WiFi? (y/n) " unblock_wifi
+		read -rp "Unblock WiFi? (y/n) " unblock_wifi
 		if [ "${unblock_wifi}" = "y" ]; then
 			rfkill unblock wifi
 		fi
 
 		# Blacklist bluetooth kernel module.
-		read -r -p "Blacklist the bluetooth kernel module? (y/n) " blacklist_bluetooth
+		read -rp "Blacklist the bluetooth kernel module? (y/n) " blacklist_bluetooth
 		if [ "${blacklist_bluetooth}" = "y" ]; then
 			echo -e "install btusb /bin/true\ninstall bluetooth /bin/true" >/etc/modprobe.d/blacklist-bluetooth.conf
 		fi
@@ -461,9 +461,9 @@ block_wireless_devices() {
 
 mac_address_spoofing() {
 	## MAC Address Spoofing.
-	read -r -p "Spoof MAC address automatically at boot? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#mac_address) (y/n) " spoof_mac_address
+	read -rp "Spoof MAC address automatically at boot? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#mac_address) (y/n) " spoof_mac_address
 	if [ "${spoof_mac_address}" = "y" ]; then
-		read -r -p "Use macchanger or NetworkManager? " which_mac_spoofer
+		read -rp "Use macchanger or NetworkManager? " which_mac_spoofer
 		if [ "${which_mac_spoofer}" = "macchanger" ]; then
 			# Installs macchanger if it isn't already.
 			if ! pacman -Qq macchanger &>/dev/null; then
@@ -511,7 +511,7 @@ EOF
 		elif [ "${which_mac_spoofer}" = "NetworkManager" ]; then
 			# Installs networkmanager if it isn't already installed.
 			if ! pacman -Qq networkmanager &>/dev/null; then
-				read -r -p "NetworkManager is not installed. Install it now? (y/n) " install_networkmanager
+				read -rp "NetworkManager is not installed. Install it now? (y/n) " install_networkmanager
 				if [ "${install_networkmanager}" = "y" ]; then
 					pacman -S --noconfirm -q networkmanager
 				fi
@@ -529,7 +529,7 @@ EOF
 
 configure_umask() {
 	## Set a more restrictive umask.
-	read -r -p "Set a more restrictive umask? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#umask) (y/n) " umask
+	read -rp "Set a more restrictive umask? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#umask) (y/n) " umask
 	if [ "${umask}" = "y" ]; then
 		echo "umask 0077" >/etc/profile.d/umask.sh
 	fi
@@ -537,7 +537,7 @@ configure_umask() {
 
 install_usbguard() {
 	## USBGuard.
-	read -r -p "Install USBGuard? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#usbs) (y/n) " usbguard
+	read -rp "Install USBGuard? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#usbs) (y/n) " usbguard
 	if [ "${usbguard}" = "y" ]; then
 		# Checks if usbguard is already installed.
 		if ! pacman -Qq usbguard &>/dev/null; then
@@ -549,7 +549,7 @@ install_usbguard() {
 
 blacklist_dma() {
 	## Blacklist thunderbolt and firewire kernel modules.
-	read -r -p "Blacklist Thunderbolt and Firewire? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#thunderbolt_and_firewire) (y/n) " thunderbolt_firewire
+	read -rp "Blacklist Thunderbolt and Firewire? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#thunderbolt_and_firewire) (y/n) " thunderbolt_firewire
 	if [ "${thunderbolt_firewire}" = "y" ]; then
 		echo -e "install firewire-core /bin/true\ninstall thunderbolt /bin/true" >/etc/modprobe.d/blacklist-dma.conf
 	fi
@@ -557,7 +557,7 @@ blacklist_dma() {
 
 disable_coredumps() {
 	## Core Dumps
-	read -r -p "Disable coredumps? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#core_dumps) (y/n) " coredumps
+	read -rp "Disable coredumps? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#core_dumps) (y/n) " coredumps
 	if [ "${coredumps}" = "y" ]; then
 		# Disables coredumps via sysctl.
 		echo "kernel.core_pattern=|/bin/false" >/etc/sysctl.d/disable_coredumps.conf
@@ -583,7 +583,7 @@ disable_coredumps() {
 
 microcode_updates() {
 	## Microcode updates.
-	read -r -p "Install microcode updates? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#microcode) (y/n) " microcode
+	read -rp "Install microcode updates? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#microcode) (y/n) " microcode
 	if [ "${microcode}" = "y" ]; then
 		# Checks which CPU is being used.
 		if grep 'AMD' /proc/cpuinfo >/dev/null; then
@@ -617,7 +617,7 @@ microcode_updates() {
 
 disable_ntp() {
 	## NTP
-	read -r -p "Disable NTP? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#ntp) (y/n) " ntp
+	read -rp "Disable NTP? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#ntp) (y/n) " ntp
 	if [ "${ntp}" = "y" ]; then
 		# Uninstalls NTP clients
 		for ntp_client in ntp openntpd ntpclient; do
@@ -635,7 +635,7 @@ disable_ntp() {
 ipv6_privacy_extensions() {
 	## IPv6 Privacy Extensions
 	if ! [ "${disable_ipv6}" = "y" ]; then
-		read -r -p "Do you want to enable IPv6 privacy extensions? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#ipv6_privacy) (y/n) " ipv6_privacy
+		read -rp "Do you want to enable IPv6 privacy extensions? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#ipv6_privacy) (y/n) " ipv6_privacy
 		if [ "${ipv6_privacy}" = "y" ]; then
 			# Enable IPv6 privacy extensions via sysctl.
 			echo "net.ipv6.conf.all.use_tempaddr=2
@@ -652,7 +652,7 @@ net.ipv6.conf.default.use_tempaddr=2" >/etc/sysctl.d/ipv6_privacy.conf
 			## Check for NetworkManager.
 			if pacman -Qq networkmanager &>/dev/null; then
 				# Enable IPv6 privacy extensions for NetworkManager.
-				read -r -p "Enable IPv6 privacy extensions for NetworkManager? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#ipv6_networkmanager) (y/n)" networkmanager
+				read -rp "Enable IPv6 privacy extensions for NetworkManager? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#ipv6_networkmanager) (y/n)" networkmanager
 				if [ "${networkmanager}" = "y" ]; then
 					echo -e "[connection]\nipv6.ip6-privacy=2" >>/etc/NetworkManager/NetworkManager.conf
 				fi
@@ -661,7 +661,7 @@ net.ipv6.conf.default.use_tempaddr=2" >/etc/sysctl.d/ipv6_privacy.conf
 			## Check for systemd-networkd.
 			if systemctl is-active systemd-networkd.service >/dev/null 2>&1; then
 				# Enable IPv6 privacy extensions for systemd-networkd.
-				read -r -p "Enable IPv6 privacy extensions for systemd-networkd? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#ipv6_systemd-networkd) (y/n) " systemd-networkd
+				read -rp "Enable IPv6 privacy extensions for systemd-networkd? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#ipv6_systemd-networkd) (y/n) " systemd-networkd
 				if [ "${systemd-networkd}" = "y" ]; then
 					echo -e "[Network]\nIPv6PrivacyExtensions=kernel" >/etc/systemd/network/ipv6_privacy.conf
 				fi
@@ -672,7 +672,7 @@ net.ipv6.conf.default.use_tempaddr=2" >/etc/sysctl.d/ipv6_privacy.conf
 
 blacklist_uncommon_network_protocols() {
 	## Blacklist uncommon network protocols.
-	read -r -p "Blacklist uncommon network protocols? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#uncommon_protocols) (y/n) " blacklist_net_protocols
+	read -rp "Blacklist uncommon network protocols? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#uncommon_protocols) (y/n) " blacklist_net_protocols
 	if [ "${blacklist_net_protocols}" = "y" ]; then
 		cat <<EOF >/etc/modprobe.d/uncommon-network-protocols.conf
 install dccp /bin/true
@@ -699,7 +699,7 @@ EOF
 
 disable_uncommon_filesystems() {
 	## Disable mounting of uncommon filesystems.
-	read -r -p "Disable mounting of uncommon filesystems? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#uncommon_filesystems) (y/n) " blacklist_filesystems
+	read -rp "Disable mounting of uncommon filesystems? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#uncommon_filesystems) (y/n) " blacklist_filesystems
 	if [ "${blacklist_filesystems}" = "y" ]; then
 		cat <<EOF >/etc/modprobe.d/uncommon-filesystems.conf
 install cramfs /bin/true
@@ -715,11 +715,11 @@ EOF
 
 more_entropy() {
 	## Gather more entropy.
-	read -r -p "Do you want to gather more entropy? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#entropy) (y/n) " gather_more_entropy
+	read -rp "Do you want to gather more entropy? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#entropy) (y/n) " gather_more_entropy
 	if [ "${gather_more_entropy}" = "y" ]; then
 		# Enable haveged.
 		if ! pacman -Qq haveged &>/dev/null; then
-			read -r -p "Do you want to install and enable haveged? (y/n) " enable_haveged
+			read -rp "Do you want to install and enable haveged? (y/n) " enable_haveged
 			if [ "${enable_haveged}" = "y" ]; then
 				pacman -S --noconfirm -q haveged
 				systemctl enable haveged.service
@@ -728,7 +728,7 @@ more_entropy() {
 
 		# Install jitterentropy.
 		if ! pacman -Qq jitterentropy &>/dev/null; then
-			read -r -p "Do you want to install jitterentropy? (y/n) " install_jitterentropy
+			read -rp "Do you want to install jitterentropy? (y/n) " install_jitterentropy
 			if [ "${install_jitterentropy}" = "y" ]; then
 				pacman -S --noconfirm -q jitterentropy
 				systemctl enable jitterentropy.service #Test
@@ -739,13 +739,13 @@ more_entropy() {
 
 webcam_and_microphone() {
 	## Block the webcam and microphone.
-	read -r -p "Do you want to blacklist the webcam kernel module? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#microphones_and_webcams) (y/n) " blacklist_webcam
+	read -rp "Do you want to blacklist the webcam kernel module? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#microphones_and_webcams) (y/n) " blacklist_webcam
 	if [ "${blacklist_webcam}" = "y" ]; then
 		# Blacklist the webcam kernel module.
 		echo "install uvcvideo /bin/true" >/etc/modprobe.d/blacklist-webcam.conf
 	fi
 
-	read -r -p "Do you want to blacklist the microphone and speaker kernel module? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#microphones_and_webcams) (y/n) " blacklist_mic
+	read -rp "Do you want to blacklist the microphone and speaker kernel module? (see: https://theprivacyguide1.github.io/linux_hardening_guide.html#microphones_and_webcams) (y/n) " blacklist_mic
 	if [ "${blacklist_mic}" = "y" ]; then
 		# Blacklist the microphone and speaker kernel module.
 		mic_modules=$(awk '{print $2}' /proc/asound/modules | awk '!x[$0]++')
@@ -758,7 +758,7 @@ webcam_and_microphone() {
 }
 
 powerfull_permission() {
-	read -r -p "Do you want to set powerfull permissin on system files (y/n) " powerfull_perm
+	read -rp "Do you want to set restrictive permissin on system files (y/n) " powerfull_perm
 	if [ "${powerfull_perm}" = "y" ]; then
 		# Set powerfull permissin on on system.
 		chmod -R 700 /root
@@ -774,13 +774,12 @@ powerfull_permission() {
 		echo 'root' >/etc/cron.allow
 		echo 'root' >/etc/at.allow
 		# Secure Log Files
-		echo -e "*.warn;*.err		/var/log/syslog\nkern.*		/var/log/kernel" >>/etc/syslog.conf
+		echo -e "*.warn;*.err	/var/log/syslog\nkern.*	/var/log/kernel" >>/etc/syslog.conf
 	fi
-
 }
 
 grub_password() {
-	read -r -p "Do you want to set passsword on grub (y/n) " g_password
+	read -rp "Do you want to set passsword on grub (y/n) " g_password
 	if [ "${g_password}" = "y" ]; then
 		# Set Grub password
 		read -ri 'Type username for grub' guser
@@ -789,11 +788,10 @@ grub_password() {
 		echo "set superusers=""$guser"" " >>/etc/grub.d/40_custom
 		echo "password_pbkdf2 $guser $grubpassword" >>/etc/grub.d/40_custom
 	fi
-
 }
 
 less_journal() {
-	read -r -p "Do you want to decrease Journald size limit to 200M (y/n) " journaldyn
+	read -rp "Do you want to decrease Journald size limit to 200M (y/n) " journaldyn
 	if [ "${journaldyn}" = "y" ]; then
 		sed -i 's/#SystemMaxUse=/SystemMaxUse=200M/g' /etc/systemd/journald.conf
 		journalctl --vacuum-size=100M
@@ -803,7 +801,7 @@ less_journal() {
 }
 
 harden_pass() {
-	read -r -p "Do you want to enable faillock+pam_module+password_ageing (y/n) " FAILLOCKYN
+	read -rp "Do you want to enable faillock+pam_module+password_ageing (y/n) " FAILLOCKYN
 	if [ "${FAILLOCKYN}" = "y" ]; then
 		# 4 second login delay
 		echo "auth optional pam_faildelay.so delay=4000000" >>/etc/pam.d/system-login
@@ -827,7 +825,7 @@ harden_pass() {
 }
 
 install_torbrowser() {
-	read -r -p "Do you want to Install tor browser (y/n) " TORBROYN
+	read -rp "Do you want to Install tor browser (y/n) " TORBROYN
 	if [ "${TORBROYN}" = "y" ]; then
 		pacman -S torbrowser-launcher --noconfirm --needed &>/dev/null
 		torbrowser-launcher
@@ -835,7 +833,7 @@ install_torbrowser() {
 }
 
 install_clamav() {
-	read -r -p "Do you want to Install clamav antivirus (y/n) " CLAMAVYN
+	read -rp "Do you want to Install clamav antivirus (y/n) " CLAMAVYN
 	if [ "${CLAMAVYN}" = "y" ]; then
 		pacman -S clamav --needed --noconfirm &>/dev/null
 		systemctl enable clamav-freshclam.service &>/dev/null
@@ -844,7 +842,7 @@ install_clamav() {
 }
 
 harden_tmpfs() {
-	read -r -p "Do you want to add nosuid,noexec etc flag to ~/.cache (y/n) " CACHEYN
+	read -rp "Do you want to add nosuid,noexec etc flag to ~/.cache (y/n) " CACHEYN
 	if [ "${CACHEYN}" = "y" ]; then
 		echo "tmpfs	/home/$SUSER/.cache	tmpfs	noatime,nodev,nosuid,size=500M	0	0" >>/etc/fstab
 	fi
@@ -852,7 +850,7 @@ harden_tmpfs() {
 
 blacklist_junk() {
 	## Blacklist junk kernel modules.
-	read -r -p "Blacklist some Junk kernel modules (y/n) " blacklistyn
+	read -rp "Blacklist some Junk kernel modules (y/n) " blacklistyn
 	if [ "${blacklistyn}" = "y" ]; then
 		echo -e '# iTCO_wdt: disables watchdog.
 install iTCO_wdt /bin/true
@@ -862,12 +860,12 @@ install joydev /bin/true
 # You can enable them with `modprobe joydev` in runtime and then plug a joystick to detect it.
 install mousedev /bin/true
 # mac_hid: I dont love apple products, and dont need one, so blacklisting this doesnt hurt.
-install mac_hid /bin/true' >>/etc/modprobe.d/blacklists.conf
+install mac_hid /bin/true' >>/etc/modprobe.d/blacklists-junk.conf
 	fi
 }
 
 change_dns() {
-	read -r -p "Change default dns with cloudflare,goolag (y/n) " dnschgyn
+	read -rp "Change default dns with cloudflare,goolag (y/n) " dnschgyn
 	if [ "${dnschgyn}" = "y" ]; then
 		echo -e 'options rotate
 options timeout:1
@@ -887,7 +885,7 @@ nameserver 1.0.0.1' >/etc/resolv.conf
 
 ending() {
 	## Reboot
-	read -r -p "Reboot to apply all of the changes? (y/n) " rebootyn
+	read -rp "Reboot to apply all of the changes? (y/n) " rebootyn
 	fc-cache -f -v -r >/dev/null 2>&1
 	sysctl -p >/dev/null 2>&1
 	mkinitcpio -c /etc/mkinitcpio.conf -g /boot/initramfs-linux.img -k "$(uname -r)" >/dev/null 2>&1
@@ -898,7 +896,7 @@ ending() {
 	fi
 }
 
-read -r -p "Start? (y/n) " start
+read -rp "Start? (y/n) " start
 if [ "${start}" = "n" ]; then
 	exit 1
 elif ! [ "${start}" = "y" ]; then

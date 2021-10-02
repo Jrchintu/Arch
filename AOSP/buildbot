@@ -121,7 +121,7 @@ fi
 ############ BUILD NOTIFICATION ############
 ############################################
 # PC Stats
-curl https://raw.githubusercontent.com/ramdibaaz/aosp-builder/main/extra.sh >>extra.sh && chmod +x ./extra.sh && bash extra.sh
+curl -LO https://raw.githubusercontent.com/Jrchintu/Arch/main/AOSP/stat && chmod +x ./stat && bash stat
 TGDOC "stats.md" "New build starts"
 
 # Build Info notification

@@ -25,8 +25,8 @@ noroot() {
 mkdir -p "$SUSER"/{Git,Backup}
 
 # Install Fav App's
-pacman -Sy --needed lm_sensors thermald papirus-icon-theme gnome-keyring x86_energy_perf_policy \
-	libsecret cracklib man-db man-pages alacritty ttf-hack ttf-lato aria2 youtube-dl xarchiver-gtk2
+pacman -Sy --needed lm_sensors thermald papirus-icon-theme gnome-keyring x86_energy_perf_policy compton \
+	libsecret cracklib man-db man-pages alacritty ttf-jetbrains-mono ttf-lato aria2 youtube-dl xarchiver-gtk2 picom
 # EXTRA FAV
 paru -S usbip vscodium-bin preload && systemctl --now enable preload
 
@@ -81,10 +81,8 @@ xfconf-query -c xfce4-session -p /general/SaveOnExit -n -t bool -s false --creat
 xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/lock-screen-suspend-hibernate -n -t bool -s true --create
 xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/logind-handle-suspend-key -n -t bool -s true --create
 
-# Use new systemd-swap
-sudo pacman -S systemd-swap
-sudo bash -c 'echo -e "zswap_enabled=0\nzram_enabled=0\nswapfc_enabled=1" > /etc/systemd/swap.conf.d/myswap.conf'
-systemd-swap start
+# Enable 20:20:20 eye rest timer [Check dotfiles]
+systemctl enable --user --now twenty.timer
 
 # Generate init and grub and sysctl
 mkinitcpio -P

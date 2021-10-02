@@ -34,7 +34,7 @@ chown -R "$USERN":users /home/"$USERN"
 passwd "$USERN"
 EDITOR=nano sed -i 's/^#\s*\(%wheel\s\+ALL=(ALL)\s\+ALL\)/\1/' /etc/sudoers
 
-# INSTALL PARU
+# Paru
 read -rp 'Do you want to install paru [Aur helper][Y/N]: ' PARUYN
 if [[ "$PARUYN" =~ ^[Yy]$ ]]; then
 	if [ -z "$USERN" ]; then read -rp 'Tell username you setted back [This is due to error last time] : ' USERN; else true; fi
@@ -51,7 +51,7 @@ else
 	echo -e 'Server = https://download.opensuse.org/repositories/home:/ungoogled_chromium/Arch/$arch' | tee -a /etc/pacman.conf
 fi
 
-# PACMAN
+# Pacman
 pacman-key --init && pacman-key --populate archlinux
 sed -i '93s|#\[|\[|g' /etc/pacman.conf && sed -i '94s|#I|I|g' /etc/pacman.conf # Multilib
 sed -i 's|#Color|Color|g' /etc/pacman.conf                                     # Color
@@ -67,8 +67,8 @@ ufw default deny incoming && ufw default allow outgoing && ufw enable
 # Bluetooth
 pacman -S --needed --noconfirm bluez blueman
 
-# Pipewire/Audio
-pacman -S --needed --noconfirm pavucontrol pipewire{,-pulse,-media-session,-jack}
+# Pipewire
+pacman -S --needed --noconfirm pavucontrol pipewire{,-pulse,-media-session}
 systemctl enable --now --user pipewire{,-pulse,-media-session}
 
 # Fstrim
@@ -81,18 +81,22 @@ sed -i 's|#GRUB_DISABLE_SUBMENU=y|GRUB_DISABLE_SUBMENU=y|g' /etc/default/grub
 sed -i 's|GRUB_DISABLE_RECOVERY=true|GRUB_DISABLE_RECOVERY=false|g' /etc/default/grub
 
 # Fix touchpad
-TEMP2="GRUB_CMDLINE_LINUX_DEFAULT=\"i8042.nopnp nowatchdog loglevel=3\""
+TEMP2="GRUB_CMDLINE_LINUX_DEFAULT=\"i8042.nopnp nowatchdog loglevel=4\""
 sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=.*|$TEMP2|g" /etc/default/grub
 
 # Enable Hibernation
-br && read -rp "Do you want to enable hibernation support? [SWAPFILE=4GB(Default)][Edit script if system is encrypted][Y/N]: " HIBERYN
-if [[ "${HIBERYN}" =~ ^[Yy]$ ]]; then
-	dd if=/dev/zero of=/swapfile count=4096 bs=1MiB status=progress && chmod -R 600 /swapfile
-	echo -e '\n# Swap\n/swapfile    swap    swap    sw    0    0' >>/etc/fstab
-	sed -i "s|HOOKS=(base.*|HOOKS=(base udev autodetect modconf block filesystems keyboard uresume fsck)|g" /etc/mkinitcpio.conf
-	curl -LO https://raw.githubusercontent.com/Jrchintu/Arch/main/Config/suspend.conf >/etc/suspend.conf
-	br && lsblk && read -rp "Write the name of root partation [E.g /dev/sda3]: " ROOTDIR
-	ROFFSET="$(swap-offset /swapfile | cut -d'=' -f2 | awk '{$1=$1};1')"
-	echo -e "resume device = $ROOTDIR\nresume offset = $ROFFSET" >>/etc/suspend.conf
-	mkinitcpio -P
+if [ -e /swapfile ]; then echo /swapfile already exists, skiping; else
+	dd if=/dev/zero of=/swapfile count=6144 bs=1M status=progress && chmod -R 600 /swapfile
+	echo -e '\n# Swap\n/swapfile swap swap defaults 0 0' >>/etc/fstab
+	mkswap /swapfile && swapon /swapfile
+	br && read -rp "Do you want to enable hibernation support? [SWAPFILE=4GB(Default)][Edit script if system is encrypted][Y/N]: " HIBERYN
+	if [[ "${HIBERYN}" =~ ^[Yy]$ ]]; then
+		sed -i "s|HOOKS=(base.*|HOOKS=(base udev autodetect modconf block filesystems keyboard resume fsck)|g" /etc/mkinitcpio.conf
+		RUUID="$(findmnt -no UUID -T /swapfile)"
+		SOFFSET="$(filefrag -v /swapfile | awk '{ if($1=="0:"){print substr($4, 1, length($4)-2)} }')"
+		TEMPCMDLINE="GRUB_CMDLINE_LINUX_DEFAULT=\"i8042.nopnp nowatchdog loglevel=4 resume=UUID=$RUUID resume_offset=$SOFFSET\""
+		sed -i "s/GRUB_CMDLINE_LINUX_DEFAULT=.*/$TEMPCMDLINE/g" /etc/default/grub
+		grub-mkconfig -o /boot/grub/grub.cfg
+		mkinitcpio -P
+	else exit; fi
 fi
