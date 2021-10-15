@@ -39,7 +39,7 @@ updates() {
 		else echo 'Offline Please connect...[Use iwctl command then type help]' && exit; fi
 	fi
 	timedatectl set-ntp true
-	pacman -Syy --noconfirm
+	pacman -Syy
 }
 
 partition() {
@@ -99,12 +99,13 @@ partition() {
 }
 
 mounter() {
+	# Root
 	clear && lsblk && br
 	read -rp "Which is your root partition [Eg. /dev/sda3]: " ROOTP
 	mkfs.ext4 "$ROOTP"
 	mount -o "defaults,noatime" "$ROOTP" /mnt
 	mkdir -pv /mnt/{boot/efi,home}
-
+	# Home
 	clear && lsblk && br
 	read -rp "Do you want to mount seperate home partition [y/N]: " RESPH
 	if [[ "$RESPH" =~ ^[Yy]$ ]]; then
@@ -116,59 +117,61 @@ mounter() {
 		fi
 		mount -o "defaults,noatime,nosuid,nodev" "$HOMEP" /mnt/home
 	fi
-
+	# Boot
 	clear && lsblk && br
 	read -rp "Which is your boot partition [Eg. /dev/sda1]: " BOOTP
 	mkfs.fat -F32 "$BOOTP"
 	mount -o "defaults,noatime,nosuid,nodev" "$BOOTP" /mnt/boot/efi
-
+	# Swap
 	clear && lsblk && br
 	read -rp "Do you want to mount seperate SWAP partition [Y/N]: " RESPS
 	if [[ "$RESPS" =~ ^[Yy]$ ]]; then
-		read -r -p "Which Is Your Swap Partition [Eg. /dev/sda2]: " SWAPP
+		read -rp "Which Is Your Swap Partition [Eg. /dev/sda2]: " SWAPP
 		mkswap "$SWAPP"
 		swapon "$SWAPP"
 	fi
 }
 
 base() {
-	br && read -rp "Do you want to use your old saved packages directory [FOR PRO USER ONLY] [Y/N]: " PACBDIR
-	if [[ "$PACBDIR" =~ ^[Yy]$ ]]; then
-		pacstrap -U /mnt /mnt/home/PKG/*base-2-2*xz || pacstrap /mnt base
-		sed -i 's|#CacheDir    = /var/cache/pacman/pkg/|CacheDir    = /home/PKG/|g' /mnt/etc/pacman.conf
-		sed -i 's|#CacheDir    = /var/cache/pacman/pkg/|CacheDir    = /mnt/home/PKG/|g' /etc/pacman.conf
-	fi
-	pacstrap /mnt base linux-firmware linux-zen linux-zen-headers base-devel grub efibootmgr nano sudo git
+	#br && read -rp "Do you want to use your old saved packages directory [FOR PRO USER ONLY] [Y/N]: " PACBDIR
+	#if [[ "$PACBDIR" =~ ^[Yy]$ ]]; then
+	#	pacstrap -U /mnt /mnt/home/PKG/*base-2-2*xz || pacstrap /mnt base
+	#	sed -i 's|#CacheDir    = /var/cache/pacman/pkg/|CacheDir    = /home/PKG/|g' /mnt/etc/pacman.conf
+	#	sed -i 's|#CacheDir    = /var/cache/pacman/pkg/|CacheDir    = /mnt/home/PKG/|g' /etc/pacman.conf
+	#fi
+	pacstrap /mnt base linux-firmware linux-zen linux-zen-headers base-devel grub efibootmgr nano sudo git \
+		networkmanager bluez ufw pipewire{,-pulse,-media-session} alacritty ttf-jetbrains-mono ttf-lato \
+		lm_sensors thermald
 	genfstab -U /mnt >/mnt/etc/fstab
 }
 
 chrooot() {
-	curl -L https://github.com/Jrchintu/CDN/raw/main/ARCH/chroot.sh -o /mnt/chroot.sh
+	curl -sL https://raw.githubusercontent.com/Jrchintu/Arch/main/chroot -o /mnt/chroot
 	arch-chroot /mnt bash -c "chmod a+x /chroot.sh && bash /chroot.sh && exit"
 }
 
-de() {
+denv() {
 	br && echo -e "Choose a Desktop Environment to install: \n"
 	echo -e "1. GNOME \n2. DEEPIN \n3. KDE \n4. XFCE \n5. LXQT"
 	read -rp "DE[1-5]: " DESKTOPENV
 	if [[ "$DESKTOPENV" = '1' ]]; then
-		pacstrap /mnt gnome gnome-tweaks papirus-icon-theme
+		pacstrap /mnt gnome gnome-tweaks
 		arch-chroot /mnt bash -c "systemctl enable --now gdm && exit"
 		sed -i 's/#W/W/' /mnt/etc/gdm/custom.conf #Wayland dont work good with nvidia
 	elif [[ "$DESKTOPENV" = '2' ]]; then
 		pacstrap /mnt deepin lightdm
 		arch-chroot /mnt bash -c "systemctl enable --now lightdm && exit"
 	elif [[ "$DESKTOPENV" = '3' ]]; then
-		pacstrap /mnt xorg-server plasma sddm thunar
+		pacstrap /mnt xorg-server plasma sddm
 		arch-chroot /mnt bash -c "systemctl enable --now sddm && exit"
 	elif [[ "$DESKTOPENV" = '4' ]]; then
 		pacstrap /mnt xfce4 xorg-server lightdm lightdm-gtk-greeter gtk-engine-murrine gtk-engines xfce4-screenshooter \
-			xfce4-whiskermenu-plugin xfce4-pulseaudio-plugin xfce4-battery-plugin network-manager-applet xdg-desktop-portal \
-			gvfs gvfs-mtp mtpfs thunar-media-tags-plugin thunar-archive-plugin accountsservice
+			xfce4-whiskermenu-plugin xfce4-pulseaudio-plugin xfce4-battery-plugin network-manager-applet \
+			gvfs gvfs-mtp mtpfs thunar-media-tags-plugin thunar-archive-plugin accountsservice xdg-desktop-portal
 		arch-chroot /mnt bash -c "systemctl enable --now lightdm && exit"
 		sed -i 's|#greeter-hide-users=false|greeter-hide-users=true|g' /mnt/etc/lightdm/lightdm.conf
 	elif [[ "$DESKTOPENV" = '5' ]]; then
-		pacstrap /mnt xorg-server network-manager-applet lxqt xdg-utils sddm libpulse libstatgrab libsysstat lm_sensors
+		pacstrap /mnt xorg-server network-manager-applet lxqt xdg-utils sddm
 		arch-chroot /mnt bash -c "systemctl enable --now sddm && exit"
 	fi
 }
@@ -183,7 +186,7 @@ main() {
 	echo "6.  DesktopEnv"
 	br && read -rp "Enter the number of step [1-6]: " stepno && clear
 
-	array=(updates partition mounter base chrooot de)
+	array=(updates partition mounter base chrooot denv)
 	stepno=$((stepno - 1))
 	while [ $stepno -lt ${#array[*]} ]; do
 		${array[$stepno]}
@@ -194,11 +197,10 @@ main() {
 # STEPS
 clear && ascii && br
 main
-sed -i 's|CacheDir|#CacheDir|g' /mnt/etc/pacman.conf
-sync
-umount -fvR /mnt && wait
-umount -fvR /mnt/home && wait
-umount -fvR /mnt/boot/efi && wait
+sed -i 's|CacheDir|#CacheDir|g' /mnt/etc/pacman.conf && sync
+umount -fv /mnt && wait
+umount -fv /mnt/home && wait
+umount -fv /mnt/boot/efi && wait
 swapoff -av && wait
 lsblk && br && read -rp 'Do you want to reboot [Y/N]: ' REBOOTYN
 if [ "$REBOOTYN" = 'y' ] || [ "$REBOOTYN" = 'Y' ]; then reboot; fi

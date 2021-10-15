@@ -7,6 +7,9 @@ pacman -Rcns kate kate5-data kate-data kwrite kwrited kmail akonadi-server juk d
 # Remove Xfce junk
 pacman -Rcns xfce4-terminal xfce4-appfinder tumbler
 
+# Cleanup junk
+rm -rvf /chroot
+
 # OPTIONAL DEPENDENCIES
 pacman -R $(pacman -Qdtq)
 

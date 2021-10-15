@@ -17,28 +17,31 @@ if [ "$EUID" -ne 0 ]; then
 	fi
 fi
 export SUSER="${SUDO_USER:-${USER}}"
-noroot() {
-	sudo -H -u "$SUSER" bash -c "$1"
-}
+noroot() { sudo -H -u "$SUSER" bash -c "$1"; }
+
+# Pacman
+pacman -S --needed reflector
+reflector --latest 30 --sort rate --verbose --protocol https --save /etc/pacman.d/mirrorlist
+pacman -Rcsnd reflector
 
 # Make my fav dirs
 mkdir -p "$SUSER"/{Git,Backup}
 
 # Install Fav App's
-pacman -Sy --needed lm_sensors thermald papirus-icon-theme gnome-keyring x86_energy_perf_policy compton \
-	libsecret cracklib man-db man-pages alacritty ttf-jetbrains-mono ttf-lato aria2 youtube-dl xarchiver-gtk2 picom
-# EXTRA FAV
-paru -S usbip vscodium-bin preload && systemctl --now enable preload
-
+pacman -Sy --needed lm_sensors thermald papirus-icon-theme gnome-keyring x86_energy_perf_policy \
+	libsecret cracklib man-db man-pages aria2 youtube-dl xarchiver-gtk2 picom
+# EXTRA FAV[Extra usbip]
+paru -S vscodium-bin preload && systemctl --now enable preload
 # INTEL
-paru -S intel-ucode mesa
+paru -S --needed intel-ucode mesa
 # NVIDIA [Need reboot]
-paru -S nvidia-390xx-utils nvidia-390xx-dkms optimus-manager nvidia-settings acpi_call-dkms #bbswitch-dkms
+paru -S nvidia-390xx-utils nvidia-390xx-dkms nvidia-390xx-settings optimus-manager bbswitch-dkms #acpi_call-dkms
 systemctl enable optimus-manager
+curl -L https://github.com/Jrchintu/Arch/raw/main/Config/optimus-manager.conf -o /etc/optimus-manager.conf
 # XORG-DRIVERS
-pacman -S --needed xf86-video-{fbdev,vesa,intel,libinput}
+pacman -S --needed xf86-video-{fbdev,vesa,intel}
 # VAAPI [check with vainfo in libva-utils package]
-paru -S libva libva-intel-driver-hybrid intel-hybrid-codec-driver
+paru -S --needed libva libva-intel-driver-hybrid intel-hybrid-codec-driver
 echo -e "export LIBVA_DRIVER_NAME='i965'" >>/etc/profile.d/env.sh && chmod a+x /etc/profile.d/env.sh
 # VDPAU [check with vdpauinfo]
 paru -S libglvnd libvdpau-va-gl libva-vdpau-driver mesa-vdpau
@@ -64,13 +67,6 @@ echo -e 'options i915 fastboot=1' >>/etc/modprobe.d/i915.conf
 # TLP
 paru -S tlp ethtool x86_energy_perf_policy && systemctl enable --now tlp
 
-# Fancontrol
-pacman -S --needed --noconfirm lm_sensors && systemctl enable --now fancontrol
-curl -L https://raw.githubusercontent.com/Jrchintu/CDN/main/ARCH/XTRA/fancontrol >/etc/fancontrol
-
-# Thermald [Need /etc/thermald/thermald-config.xml]
-pacman -S --needed --noconfirm thermald && systemctl enable --now thermald
-
 # Display manager and Windows manager tearing
 xfconf-query -c xfwm4 -p /general/vblank_mode -t string -s 'off' --create # Disable xfwm compositor OR set to off/glx/auto
 xfconf-query -c xfwm4 -p /general/use_compositing -s false                # Disable xfce compositor
@@ -83,6 +79,10 @@ xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/logind-handle-suspen
 
 # Enable 20:20:20 eye rest timer [Check dotfiles]
 systemctl enable --user --now twenty.timer
+
+# Fix Makepkg flags
+sed -i 's|#MAKEFLAGS="-j2"/MAKEFLAGS="-j4"|g' /mnt/etc/makepkg.conf
+sed -i 's|COMPRESSXZ=(xz -c -z -)|COMPRESSXZ=(xz -c -T 4 -z -)|g' /mnt/etc/makepkg.conf # -T=$(nproc --all)
 
 # Generate init and grub and sysctl
 mkinitcpio -P

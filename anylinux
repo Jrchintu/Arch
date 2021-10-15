@@ -11,7 +11,7 @@ fi
 
 # Replace bashrc
 mv /home/"$SUSER"/.bashrc /home/"$SUSER"/.bashrc.bak
-curl -LO https://raw.githubusercontent.com/Jrchintu/CDN/main/DOT/.bashrc
+curl -LO https://raw.githubusercontent.com/Jrchintu/DOT/main/.bashrc
 mv -i ./.bashrc /home/"$SUSER"/
 
 # check distro type [debian,arch]
@@ -24,6 +24,9 @@ elif [ "$DISTRO" = 'debian' ] || [ "$DISTRO" = 'ubuntu' ]; then
 	which apt &>>/dev/null || exit
 	read -rep 'Do you want AOSP env setup ? [Y/N]:' aospenv
 	if [ "${aospenv}" = "y" ] || [ "${aospenv}" = "Y" ]; then
+		# Remove Snapd
+		sudo apt purge snapd
+		rm -rf ~/snap /var/cache/snapd
 		# ENV SETUP
 		sudo apt update -y && sudo apt upgrade -y
 		sudo add-apt-repository ppa:openjdk-r/ppa -y
@@ -48,10 +51,9 @@ export SKIP_ABI_CHECKS=true
 export SKIP_API_CHECKS=true
 export WITHOUT_CHECK_API=true
 export TZ=Asia/Kolkata
+ccache -M 30G -F 0
 if [[ \$(pidof soong_ui) ]]; then :; else ccache -z; fi
 EOF
-
-		ccache -M 30G # OPTIONAL
 		# Source bashrc
 		source /home/"$SUSER"/.bashrc
 
