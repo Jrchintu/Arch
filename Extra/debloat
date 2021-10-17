@@ -5,7 +5,7 @@ pacman -Rcns kate kate5-data kate-data kwrite kwrited kmail akonadi-server juk d
 	plasma-workspace-wallpapers kdeplasma-addons plasma-thunderbolt network-manager-sstp
 
 # Remove Xfce junk
-pacman -Rcns xfce4-terminal xfce4-appfinder tumbler
+pacman -Rcns xfce4-terminal xfce4-appfinder thunar-volman
 
 # Cleanup junk
 rm -rvf /chroot

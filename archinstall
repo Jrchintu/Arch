@@ -86,12 +86,12 @@ partition() {
 			# Using cgdisk for GPT, for mbr use cfdisk
 			cgdisk "$DRIVE2EDIT"
 		fi
-	elif [ "$OLDNEW" = '2' ]; then
+	elif [[ "$OLDNEW" = '2' ]]; then
 		clear && lsblk && br
 		read -rp "Which drive you want to partition [Exit with ctrl+c] (example /dev/sda)   " DRIVE2EDIT
 		# Using cgdisk for GPT, for mbr use cfdisk
 		cgdisk "$DRIVE2EDIT"
-	elif [ "$OLDNEW" = '3' ]; then
+	elif [[ "$OLDNEW" = '3' ]]; then
 		true
 	else
 		exit
@@ -133,12 +133,12 @@ mounter() {
 }
 
 base() {
-	#br && read -rp "Do you want to use your old saved packages directory [FOR PRO USER ONLY] [Y/N]: " PACBDIR
-	#if [[ "$PACBDIR" =~ ^[Yy]$ ]]; then
-	#	pacstrap -U /mnt /mnt/home/PKG/*base-2-2*xz || pacstrap /mnt base
-	#	sed -i 's|#CacheDir    = /var/cache/pacman/pkg/|CacheDir    = /home/PKG/|g' /mnt/etc/pacman.conf
-	#	sed -i 's|#CacheDir    = /var/cache/pacman/pkg/|CacheDir    = /mnt/home/PKG/|g' /etc/pacman.conf
-	#fi
+	br && read -rp "Do you want to use your old saved packages directory [FOR PRO USER ONLY] [Y/N]: " PACBDIR
+	if [[ "$PACBDIR" =~ ^[Yy]$ ]]; then
+		pacstrap -U /mnt /mnt/home/PKG/*base-2-2*xz || pacstrap /mnt base
+		sed -i 's|#CacheDir    = /var/cache/pacman/pkg/|CacheDir    = /home/PKG/|g' /mnt/etc/pacman.conf
+		sed -i 's|#CacheDir    = /var/cache/pacman/pkg/|CacheDir    = /mnt/home/PKG/|g' /etc/pacman.conf
+	fi
 	pacstrap /mnt base linux-firmware linux-zen linux-zen-headers base-devel grub efibootmgr nano sudo git \
 		networkmanager bluez ufw pipewire{,-pulse,-media-session} alacritty ttf-jetbrains-mono ttf-lato \
 		lm_sensors thermald
@@ -146,8 +146,9 @@ base() {
 }
 
 chrooot() {
-	curl -sL https://raw.githubusercontent.com/Jrchintu/Arch/main/chroot -o /mnt/chroot
+	curl -sL https://raw.githubusercontent.com/Jrchintu/Arch/main/chroot -o /mnt/chroot.sh
 	arch-chroot /mnt bash -c "chmod a+x /chroot.sh && bash /chroot.sh && exit"
+	rm -rf /mnt/chroot.sh
 }
 
 denv() {
@@ -167,7 +168,7 @@ denv() {
 	elif [[ "$DESKTOPENV" = '4' ]]; then
 		pacstrap /mnt xfce4 xorg-server lightdm lightdm-gtk-greeter gtk-engine-murrine gtk-engines xfce4-screenshooter \
 			xfce4-whiskermenu-plugin xfce4-pulseaudio-plugin xfce4-battery-plugin network-manager-applet \
-			gvfs gvfs-mtp mtpfs thunar-media-tags-plugin thunar-archive-plugin accountsservice xdg-desktop-portal
+			gvfs gvfs-mtp mtpfs thunar-media-tags-plugin accountsservice xdg-desktop-portal
 		arch-chroot /mnt bash -c "systemctl enable --now lightdm && exit"
 		sed -i 's|#greeter-hide-users=false|greeter-hide-users=true|g' /mnt/etc/lightdm/lightdm.conf
 	elif [[ "$DESKTOPENV" = '5' ]]; then
@@ -177,7 +178,7 @@ denv() {
 }
 
 main() {
-	echo -e "These Steps Are Available For Installion [Usually choose 1].\n"
+	echo -e "These Steps Are Available For Installion [Usually choose 1]\n"
 	echo "1.  Update Pacman Database"
 	echo "2.  Partitioning"
 	echo "3.  Mount"
@@ -197,10 +198,11 @@ main() {
 # STEPS
 clear && ascii && br
 main
-sed -i 's|CacheDir|#CacheDir|g' /mnt/etc/pacman.conf && sync
-umount -fv /mnt && wait
+sed -i 's|CacheDir|#CacheDir|g' /mnt/etc/pacman.conf
+sync && wait
 umount -fv /mnt/home && wait
 umount -fv /mnt/boot/efi && wait
+umount -fv /mnt && wait
 swapoff -av && wait
 lsblk && br && read -rp 'Do you want to reboot [Y/N]: ' REBOOTYN
 if [ "$REBOOTYN" = 'y' ] || [ "$REBOOTYN" = 'Y' ]; then reboot; fi
