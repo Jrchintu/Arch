@@ -26,10 +26,9 @@ pacman -Rcsnd reflector
 
 # Make my fav dirs
 mkdir -p "$SUSER"/{Git,Backup}
-
-# Install Fav App's
-pacman -Sy --needed lm_sensors thermald papirus-icon-theme gnome-keyring x86_energy_perf_policy \
-	libsecret cracklib man-db man-pages aria2 youtube-dl xarchiver-gtk2 picom openssh
+# Fav apps
+sudo pacman -S keepassxc papirus-icon-theme openssh ripgrep aria2 android-tools vlc reflector \
+               telegram-desktop gnome-keyring youtube-dl xarchiver-gtk2
 # EXTRA FAV[Extra usbip]
 paru -S vscodium-bin preload && systemctl --now enable preload
 # INTEL
