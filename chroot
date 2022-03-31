@@ -59,6 +59,7 @@ sed -i 's|GRUB_DISABLE_RECOVERY=true|GRUB_DISABLE_RECOVERY=false|g' /etc/default
 # Pacman
 pacman-key --init && pacman-key --populate archlinux
 sed -i '93s|#\[|\[|g' /etc/pacman.conf && sed -i '94s|#I|I|g' /etc/pacman.conf # Multilib
+#sed -i "/\[multilib\]/,/Include/"'s/^#//' /etc/pacman.conf
 sed -i 's|#Color|Color|g' /etc/pacman.conf                                     # Color
 sed -i 's|#VerbosePkgLists|VerbosePkgLists|g' /etc/pacman.conf                 # VerbosePkgLists
 # Nano
