@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+
 # Some Default Variables
 clear && LC_ALL=C && LANG=C
 export ROOTSZ="+50G"
@@ -39,7 +40,7 @@ updates() {
 		else echo 'Offline Please connect...[Use iwctl command then type help]' && exit; fi
 	fi
 	timedatectl set-ntp true
-	pacman -Syy
+	pacman -Syy --noconfirm archlinux-keyring
 }
 
 partition() {
@@ -70,7 +71,7 @@ partition() {
 		if [[ "$FSOK" =~ ^[Yy]$ ]]; then
 			# Make partition table {x:x:x}=={partition_no:starting_block:desired_size}
 			sgdisk -Z "$DRIVE2EDIT"                                     # Destroy existing mbr or gpt structures on disk
-			sgdisk -a 4096 -o                                           # New gpt disk 4096 alignment
+			sgdisk -a 4096 -o "$DRIVE2EDIT"                             # New gpt disk 4096 alignment
 			sgdisk -n 1:0:"$ROOTSZ" -t 1:8300 -c 1:"ROOT" "$DRIVE2EDIT" # Part 1 (ROOT), default start, 60GB
 			sgdisk -n 3:0:"$BOOTSZ" -t 3:ef00 -c 3:"BOOT" "$DRIVE2EDIT" # Part 4 (BOOT), default start, 512MB
 			sgdisk -n 4:0:"$BIOSSZ" -t 4:ef02 -c 4:"BIOS" "$DRIVE2EDIT" # Part 5 (BIOS), default start, 1MB
