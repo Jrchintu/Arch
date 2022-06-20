@@ -181,7 +181,7 @@ main() {
 	echo -e "These Steps Are Available For Installion [Usually choose 1]\n"
 	echo "1.  Update Pacman Database"
 	echo "2.  Partitioning"
-	echo "3.  Mount"
+	echo "3.  Format & Mount"
 	echo "4.  Base Arch"
 	echo "5.  Chroot"
 	echo "6.  DesktopEnv"
