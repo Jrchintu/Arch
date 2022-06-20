@@ -7,7 +7,10 @@ UHOST() {
 	read -rp "Enter new username for user [Only small character without symbol]: " USERN
 	read -rp "Enter new Hostname/Machine-Name: " HNAME
 }
-RNAME="$( curl -sL --fail https://ipapi.co/timezone; echo; )"
+RNAME="$(
+	curl -sL --fail https://ipapi.co/timezone
+	echo
+)"
 br && UHOST && br && echo -e "USERNAME = $USERN\nHOSTNAME = $HNAME\nREGION = $RNAME"
 read -rp "Is above data correct? [Y/N]: " DATAYN
 if [[ "$DATAYN" =~ ^[Yy]$ ]]; then br; else br && UHOST; fi
@@ -25,14 +28,14 @@ echo -e "127.0.0.1 $HNAME\n::1 $HNAME\n127.0.1.1 $HNAME.localdomain $HNAME" >/et
 # ROOT-PASSWORD
 br && echo "Setting new Root/Sudo/Admin password [Keep powerfull password in mind]"
 if compgen -g | grep &>/dev/null; then true; else groupadd sudo; fi
-until passwd || (( count++ >=5 )); do echo 'TryAgain'; done
+until passwd || ((count++ >= 5)); do echo 'TryAgain'; done
 passwd -l root # Disable root login by default
 
 # NEWUSER-&-PASSWORD # m=MakeNewUsrDir U=MakeNewUserGroup s=ShellIn/etc/shells
 br && echo "Enter powerfull password for new user \"$USERN\" [Keep powerfull password in mind]"
 useradd -m -U -G wheel,users,games,power,optical,storage,audio,video -s /bin/bash "$USERN"
 chown -R "$USERN":users /home/"$USERN"
-until passwd "$USERN" || (( count++ >=5 )); do echo 'Try Again' && br; done
+until passwd "$USERN" || ((count++ >= 5)); do echo 'Try Again' && br; done
 sed -i 's/^#\s*\(%wheel\s\+ALL=(ALL)\s\+ALL\)/\1/' /etc/sudoers
 
 # Paru
@@ -60,8 +63,8 @@ sed -i 's|GRUB_DISABLE_RECOVERY=true|GRUB_DISABLE_RECOVERY=false|g' /etc/default
 pacman-key --init && pacman-key --populate archlinux
 sed -i '93s|#\[|\[|g' /etc/pacman.conf && sed -i '94s|#I|I|g' /etc/pacman.conf # Multilib
 #sed -i "/\[multilib\]/,/Include/"'s/^#//' /etc/pacman.conf
-sed -i 's|#Color|Color|g' /etc/pacman.conf                                     # Color
-sed -i 's|#VerbosePkgLists|VerbosePkgLists|g' /etc/pacman.conf                 # VerbosePkgLists
+sed -i 's|#Color|Color|g' /etc/pacman.conf                     # Color
+sed -i 's|#VerbosePkgLists|VerbosePkgLists|g' /etc/pacman.conf # VerbosePkgLists
 # Nano
 sed -i 's|# include|include|' /etc/nanorc
 # NetworkManager

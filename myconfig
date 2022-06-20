@@ -28,7 +28,7 @@ pacman -Rcsnd reflector
 mkdir -p "$SUSER"/{Git,Backup}
 # Fav apps
 sudo pacman -S keepassxc papirus-icon-theme openssh ripgrep aria2 android-tools vlc reflector \
-               telegram-desktop gnome-keyring youtube-dl xarchiver-gtk2
+	telegram-desktop gnome-keyring youtube-dl xarchiver-gtk2
 # EXTRA FAV[Extra usbip]
 paru -S vscodium-bin preload && systemctl --now enable preload
 # INTEL

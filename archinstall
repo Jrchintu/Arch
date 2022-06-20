@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-
 # Some Default Variables
 clear && LC_ALL=C && LANG=C
 export ROOTSZ="+50G"
