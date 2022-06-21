@@ -4,23 +4,24 @@ br() { for ((i = 1; i <= $(tput cols); i++)); do echo -n -; done; }
 
 # Set Variables
 UHOST() {
-	read -rp "Enter new username for user [Only small character without symbol]: " USERN
+	echo -e 'Use only small character without symbol\n'
+	read -rp "Enter new username: " USERN
 	read -rp "Enter new Hostname/Machine-Name: " HNAME
 }
-RNAME="$(curl -sL --fail -w '\n' https://ipapi.co/timezone)"
 br && UHOST && br && echo -e "USERNAME = $USERN\nHOSTNAME = $HNAME\nREGION = $RNAME"
 read -rp "Is above data correct? [Y/N]: " DATAYN
 if [[ "$DATAYN" =~ ^[Yy]$ ]]; then br; else br && UHOST; fi
 
 # Time
-ln -sf /usr/share/zoneinfo/"$RNAME" /etc/localtime
+TZONE="$(curl -sL --fail -w '\n' https://ipapi.co/timezone)"
+ln -sf /usr/share/zoneinfo/"$TZONE" /etc/localtime
 hwclock --systohc
 
 # Locale
 sed -i 's/#en_US.UTF-8/en_US.UTF-8/g' /etc/locale.gen && locale-gen
 echo -e 'LANG=en_US.UTF-8\nLANGUAGE=en_US\nLC_ALL=C' >/etc/locale.conf
 
-# HOSTNAME
+# Hostname
 echo "$HNAME" >/etc/hostname
 echo -e "127.0.0.1 $HNAME\n::1 $HNAME\n127.0.1.1 $HNAME.localdomain $HNAME" >/etc/hosts
 
@@ -46,7 +47,7 @@ if [[ "$PARUYN" =~ ^[Yy]$ ]]; then
 	sudo -H -u "$USERN" bash -c 'chmod -R 777 $HOME/paru && cd $HOME/paru && makepkg -s -i -c --noconfirm && rm -rf $HOME/paru'
 fi
 
-# GRUB
+# Grub
 grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Arch
 grub-mkconfig -o /boot/grub/grub.cfg
 sed -i 's|GRUB_TIMEOUT=5|GRUB_TIMEOUT=1|g' /etc/default/grub
@@ -56,8 +57,8 @@ sed -i 's|GRUB_DISABLE_RECOVERY=true|GRUB_DISABLE_RECOVERY=false|g' /etc/default
 # Pacman
 pacman-key --init
 pacman-key --populate archlinux
-sed -i '93s|#\[|\[|g' /etc/pacman.conf && sed -i '94s|#I|I|g' /etc/pacman.conf # Multilib
-#sed -i "/\[multilib\]/,/Include/"'s/^#//' /etc/pacman.conf
+#sed -i '93s|#\[|\[|g' /etc/pacman.conf && sed -i '94s|#I|I|g' /etc/pacman.conf # Multilib
+sed -i "/\[multilib\]/,/Include/"'s/^#//' /etc/pacman.conf
 sed -i 's|#Color|Color|g' /etc/pacman.conf                     # Color
 sed -i 's|#VerbosePkgLists|VerbosePkgLists|g' /etc/pacman.conf # VerbosePkgLists
 
@@ -65,19 +66,22 @@ sed -i 's|#VerbosePkgLists|VerbosePkgLists|g' /etc/pacman.conf # VerbosePkgLists
 sed -i 's|# include|include|' /etc/nanorc
 
 # Firewall
+systemctl enable --now ufw
 ufw default deny incoming
 ufw default allow outgoing
 ufw enable
 
 # Fancontrol
 #sensors-detect --auto && sensors && pwmconfig
+#systemctl enable --now fancontrol
 
-# NetworkManager
+# Thermald
+systemctl enable --now thermald
+
+# Systemd
 systemctl enable --now NetworkManager
-systemctl enable --now ufw
 systemctl enable --now --user pipewire{,-pulse,-media-session}
 systemctl enable --now fstrim fstrim.timer
-systemctl enable --now fancontrol thermald
 
 # Fix touchpad
 TEMPC="GRUB_CMDLINE_LINUX_DEFAULT=\"i8042.nopnp nowatchdog loglevel=4\""
