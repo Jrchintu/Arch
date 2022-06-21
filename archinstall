@@ -33,10 +33,10 @@ TABLEGPT() {
 
 updates() {
 	if [ "$EUID" -ne 0 ]; then
-		echo "Please run as root" && exit
+		echo "Run as root" && exit
 		if : >/dev/tcp/8.8.8.8/53; then
 			true
-		else echo 'Offline Please connect...[Use iwctl command then type help]' && exit; fi
+		else echo 'Offline [Use iwctl command then type help]' && exit; fi
 	fi
 	timedatectl set-ntp true
 	pacman -Syy --noconfirm archlinux-keyring
@@ -66,7 +66,7 @@ partition() {
 			read -re -i "$BIOSSZ" BIOSSZ
 		fi
 		clear && br && TABLEGPT && lsblk && br
-		read -rp 'All Good   [Y/N]: ' FSOK
+		read -rp 'All Good [Y/N]: ' FSOK
 		if [[ "$FSOK" =~ ^[Yy]$ ]]; then
 			# Make partition table {x:x:x}=={partition_no:starting_block:desired_size}
 			sgdisk -Z "$DRIVE2EDIT"                                     # Destroy existing mbr or gpt structures on disk

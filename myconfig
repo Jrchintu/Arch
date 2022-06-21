@@ -91,3 +91,10 @@ mkinitcpio -P
 grub-mkconfig -o /boot/grub/grub.cfg
 sysctl -p
 fc-cache -fvr
+
+# Ungoogled Chromium
+curl -s 'https://download.opensuse.org/repositories/home:/ungoogled_chromium/Arch/x86_64/home_ungoogled_chromium_Arch.key' | pacman-key -a -
+if grep home_ungoogled_chromium_Arch /etc/pacman.conf &>/dev/null; then true; else
+	echo -e '\n[home_ungoogled_chromium_Arch]\nSigLevel = Required TrustAll' | tee -a /etc/pacman.conf
+	echo -e 'Server = https://download.opensuse.org/repositories/home:/ungoogled_chromium/Arch/$arch' | tee -a /etc/pacman.conf
+fi
