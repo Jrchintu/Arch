@@ -7,10 +7,7 @@ UHOST() {
 	read -rp "Enter new username for user [Only small character without symbol]: " USERN
 	read -rp "Enter new Hostname/Machine-Name: " HNAME
 }
-RNAME="$(
-	curl -sL --fail https://ipapi.co/timezone
-	echo
-)"
+RNAME="$(curl -sL --fail -w '\n' https://ipapi.co/timezone)"
 br && UHOST && br && echo -e "USERNAME = $USERN\nHOSTNAME = $HNAME\nREGION = $RNAME"
 read -rp "Is above data correct? [Y/N]: " DATAYN
 if [[ "$DATAYN" =~ ^[Yy]$ ]]; then br; else br && UHOST; fi
